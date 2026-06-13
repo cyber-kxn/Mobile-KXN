@@ -4,7 +4,11 @@ import { VitePWA } from 'vite-plugin-pwa';
 import path from 'node:path';
 
 // https://vitejs.dev/config/
+// On GitHub Pages the app is served from /<repo>/, locally from /.
+const base = process.env.GITHUB_PAGES ? '/Mobile-KXN/' : '/';
+
 export default defineConfig({
+  base,
   plugins: [
     react(),
     VitePWA({
@@ -41,6 +45,12 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
+    allowedHosts: true,
+  },
+  preview: {
+    port: 4173,
+    host: true,
+    allowedHosts: true,
   },
   build: {
     rollupOptions: {
