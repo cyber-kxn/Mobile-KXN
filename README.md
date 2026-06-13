@@ -4,16 +4,52 @@ A **super-simple, mobile-first** calorie & macro tracker **and** gym workout
 logger. Local-first — everything is saved in your browser, works offline, and
 needs **no account, no backend, no sign-up**.
 
-Two ways to run it — pick whichever you like:
+Three ways to use it — pick whichever you like:
 
-1. **🟢 Zero-setup (recommended):** just open **[`kxn-track.html`](kxn-track.html)**
-   in any browser. One self-contained file — no install, no server, no internet,
-   works fully offline. Double-click it and start logging.
-2. **Dev/source version:** the **React + Vite + Tailwind** app under `src/`
-   (great for hacking on it). See [Run it locally](#-run-it-locally).
+1. **📱 Install on iPhone / desktop (PWA):** the React app is an installable
+   **Progressive Web App**. Host it on GitHub Pages (one-time setup below) and on
+   iOS open it in **Safari → Share → Add to Home Screen** to get a full-screen,
+   offline, app-like icon — **no App Store, no Apple Developer account, no Xcode**.
+   On desktop Chrome/Edge, click the **Install** icon in the address bar.
+2. **🟢 Zero-setup file:** just open **[`kxn-track.html`](kxn-track.html)** in any
+   browser. One self-contained file — no install, no server, no internet. Great on
+   desktop; double-click and go.
+3. **Dev/source version:** run the **React + Vite + Tailwind** app under `src/`.
+   See [Run it locally](#-run-it-locally).
 
-Both versions have identical features and use the same `kxn-data` localStorage
-format, so a JSON backup exported from one imports cleanly into the other.
+All versions have identical features and use the same `kxn-data` localStorage
+format, so a JSON backup exported from one imports cleanly into the others.
+
+---
+
+## 📱 Put it on iPhone & desktop (PWA, no App Store)
+
+This app installs straight from the browser — it never touches Apple's app
+development / App Store pipeline.
+
+### One-time: publish it (free, via GitHub Pages)
+1. Push this repo to GitHub (the `main` branch).
+2. In the repo: **Settings → Pages → Build and deployment → Source = GitHub
+   Actions**.
+3. The included workflow (`.github/workflows/deploy.yml`) builds the PWA and
+   deploys it. You can also trigger it manually from the **Actions** tab
+   (**Deploy PWA to GitHub Pages → Run workflow**).
+4. Your app goes live at `https://<your-user>.github.io/<repo-name>/`.
+
+> HTTPS is required for installable PWAs — GitHub Pages provides it automatically.
+> Any static host (Netlify, Vercel, Cloudflare Pages) works too; just build with
+> `BASE_PATH=/ npm run build` and upload `dist/`.
+
+### Install it
+- **iPhone/iPad (Safari):** open the URL → tap **Share** → **Add to Home Screen**.
+  Launches full-screen, works offline, has its own icon. (Use Safari — Chrome on
+  iOS can't add PWAs.)
+- **Android (Chrome):** open the URL → **Add to Home screen / Install app**.
+- **Desktop (Chrome/Edge):** click the **Install** icon in the address bar, or
+  menu → **Install KXN Track**.
+
+Because it's still just a web app, your data stays **local to each device**. Use
+**Settings → Export / Import JSON** to move data between phone and desktop.
 
 ---
 
@@ -90,6 +126,9 @@ host (Netlify, Vercel, GitHub Pages, an S3 bucket, or just opened locally).
 
 ```
 kxn-track.html            # ⭐ Standalone app — open this directly, no build
+public/                   # PWA static assets (icons, copied as-is into build)
+│  └─ icons/              # 192/512/maskable/apple-touch-icon PNGs
+.github/workflows/        # deploy.yml — builds & deploys the PWA to GitHub Pages
 src/                      # React + Vite source (Option B)
 ├─ main.jsx                # React entry
 ├─ index.css              # Tailwind layers + component classes
