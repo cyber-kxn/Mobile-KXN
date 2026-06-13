@@ -4,7 +4,16 @@ A **super-simple, mobile-first** calorie & macro tracker **and** gym workout
 logger. Local-first — everything is saved in your browser, works offline, and
 needs **no account, no backend, no sign-up**.
 
-Built with **React + Vite + Tailwind CSS**.
+Two ways to run it — pick whichever you like:
+
+1. **🟢 Zero-setup (recommended):** just open **[`kxn-track.html`](kxn-track.html)**
+   in any browser. One self-contained file — no install, no server, no internet,
+   works fully offline. Double-click it and start logging.
+2. **Dev/source version:** the **React + Vite + Tailwind** app under `src/`
+   (great for hacking on it). See [Run it locally](#-run-it-locally).
+
+Both versions have identical features and use the same `kxn-data` localStorage
+format, so a JSON backup exported from one imports cleanly into the other.
 
 ---
 
@@ -45,6 +54,14 @@ Built with **React + Vite + Tailwind CSS**.
 
 ## 🚀 Run it locally
 
+### Option A — open the single file (no tools needed)
+
+Download/clone the repo and open **`kxn-track.html`** in your browser
+(double-click, or drag it into a tab). That's it. Everything is inlined; it
+runs offline forever.
+
+### Option B — run the React source
+
 You'll need **Node.js 18+**.
 
 ```bash
@@ -72,7 +89,8 @@ host (Netlify, Vercel, GitHub Pages, an S3 bucket, or just opened locally).
 ## 🗂 Project structure
 
 ```
-src/
+kxn-track.html            # ⭐ Standalone app — open this directly, no build
+src/                      # React + Vite source (Option B)
 ├─ main.jsx                # React entry
 ├─ index.css              # Tailwind layers + component classes
 ├─ App.jsx                # Shell: header, date nav, tab bar, routing
