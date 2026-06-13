@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+.next/
+out/
+
+# Env / secrets
+.env
+.env.local
+*.local
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
+
+# Test / coverage
+coverage/
+
+# Docker volumes
+infra/data/
+
+# Misc
+*.pid

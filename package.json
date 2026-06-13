@@ -1,0 +1,25 @@
+{
+  "name": "nethex",
+  "version": "0.1.0",
+  "private": true,
+  "description": "NETHEX — production-grade cybersecurity training platform",
+  "workspaces": [
+    "app",
+    "api",
+    "lab-broker"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace app",
+    "dev:api": "npm run dev --workspace api",
+    "dev:broker": "npm run dev --workspace lab-broker",
+    "build": "npm run build --workspace app",
+    "build:api": "npm run build --workspace api",
+    "lint": "npm run lint --workspace app",
+    "test": "npm run test --workspace api --if-present && npm run test --workspace app --if-present",
+    "infra:up": "docker compose -f infra/docker-compose.yml up -d --build",
+    "infra:down": "docker compose -f infra/docker-compose.yml down"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
