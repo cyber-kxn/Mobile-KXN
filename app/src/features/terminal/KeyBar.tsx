@@ -19,7 +19,7 @@ const KEYS: { label: string; send: string }[] = [
 
 export function KeyBar({ termRef }: { termRef: React.RefObject<TerminalHandle> }) {
   return (
-    <div className="flex gap-1.5 overflow-x-auto border-t border-white/[0.06] bg-obsidian-700/60 px-2 py-2">
+    <div className="flex gap-1.5 overflow-x-auto border-t border-white/[0.06] bg-obsidian-700/60 px-2 py-2 pb-safe">
       {KEYS.map((k) => (
         <button
           key={k.label}

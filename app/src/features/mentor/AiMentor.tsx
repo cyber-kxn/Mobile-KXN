@@ -76,7 +76,7 @@ export function AiMentor({ room, task }: { room: Room; task?: Task }) {
         )}
       </div>
 
-      <div className="flex items-center gap-2 border-t border-white/[0.06] p-2.5">
+      <div className="flex items-center gap-2 border-t border-white/[0.06] p-2.5 pb-safe">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}

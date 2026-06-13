@@ -125,8 +125,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           {children}
         </main>
 
-        {/* Mobile bottom nav */}
-        <nav className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around border-t border-white/[0.06] bg-obsidian-800/90 px-2 pb-safe pt-2 backdrop-blur-xl lg:hidden">
+        {/* Mobile bottom nav — hidden on immersive room pages so the room's
+            own console/mentor controls stay in the reachable zone. */}
+        <nav className={cn('fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around border-t border-white/[0.06] bg-obsidian-800/90 px-2 pb-safe pt-2 backdrop-blur-xl lg:hidden', isRoom && 'hidden')}>
           {NAV.map((n) => (
             <NavLink
               key={n.to}
