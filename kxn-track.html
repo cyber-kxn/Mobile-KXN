@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#10b981" />
+<title>KXN Track — Calories & Workouts</title>
+<!--
+  KXN Track — standalone edition.
+  A single, self-contained file. No build step, no server, no internet needed.
+  Just open this file in any modern browser. All data is saved locally in your
+  browser (localStorage). Open Settings → Export to back it up.
+-->
+<style>
+  :root {
+    --bg: #f8fafc; --surface: #ffffff; --border: #e2e8f0; --text: #0f172a;
+    --muted: #64748b; --faint: #94a3b8; --track: #e2e8f0;
+    --brand: #10b981; --brand-600: #059669; --brand-soft: #d1fae5;
+    --red: #ef4444; --amber: #f59e0b; --sky: #0ea5e9; --violet: #8b5cf6;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    --radius: 16px;
+  }
+  [data-theme="dark"] {
+    --bg: #020617; --surface: #0f172a; --border: #1e293b; --text: #f1f5f9;
+    --muted: #94a3b8; --faint: #64748b; --track: #1e293b;
+    --brand-soft: rgba(16,185,129,.18);
+    --shadow: 0 1px 3px rgba(0,0,0,.4);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+  }
+  input, button, textarea, select { font: inherit; color: inherit; }
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type=number] { -moz-appearance: textfield; }
+  button { cursor: pointer; border: none; background: none; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--track); border-radius: 99px; }
+
+  .wrap { max-width: 680px; margin: 0 auto; min-height: 100%; display: flex; flex-direction: column; }
+
+  header {
+    position: sticky; top: 0; z-index: 30;
+    background: color-mix(in srgb, var(--bg) 85%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  .hrow { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; }
+  .logo { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 18px; letter-spacing: -.02em; }
+  .logo .mark { width: 28px; height: 28px; display: grid; place-items: center; background: var(--brand); color: #fff; border-radius: 9px; }
+  .logo .sub { color: var(--faint); font-weight: 500; }
+
+  main { flex: 1; padding: 16px 12px 110px; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+  .p16 { padding: 16px; } .p12 { padding: 12px; }
+  .stack > * + * { margin-top: 16px; }
+
+  .field {
+    width: 100%; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--border);
+    background: var(--surface); outline: none; font-size: 16px; transition: border .15s, box-shadow .15s;
+  }
+  [data-theme="dark"] .field { background: #0b1220; }
+  .field:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+  .field.center { text-align: center; padding-left: 6px; padding-right: 6px; font-variant-numeric: tabular-nums; }
+  textarea.field { resize: vertical; min-height: 80px; }
+  .label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin: 0 0 5px 2px; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    padding: 10px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; transition: transform .05s, background .15s; }
+  .btn:active { transform: scale(.98); }
+  .btn.full { width: 100%; }
+  .btn.primary { background: var(--brand); color: #fff; }
+  .btn.primary:hover { background: var(--brand-600); }
+  .btn.ghost { background: var(--track); color: var(--text); }
+  .btn.danger { background: var(--red); color: #fff; }
+  .iconbtn { width: 34px; height: 34px; border-radius: 9px; display: inline-grid; place-items: center; color: var(--muted); transition: background .15s, color .15s; }
+  .iconbtn:hover { background: var(--track); color: var(--text); }
+  .iconbtn.del:hover { color: var(--red); }
+  svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: block; }
+
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .row { display: flex; align-items: center; gap: 12px; }
+  .spread { display: flex; align-items: center; justify-content: space-between; }
+  .muted { color: var(--muted); } .faint { color: var(--faint); }
+  .sectionTitle { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--faint); }
+  .tnum { font-variant-numeric: tabular-nums; }
+
+  /* date nav */
+  .datenav { display: flex; align-items: center; gap: 8px; padding: 0 16px 12px; }
+  .datectr { flex: 1; text-align: center; position: relative; }
+  .datectr .d1 { font-weight: 700; font-size: 16px; }
+  .datectr .d2 { font-size: 11px; color: var(--faint); }
+  .datectr input { position: absolute; inset: 0; opacity: 0; width: 100%; cursor: pointer; }
+  .todaybtn { background: var(--track); color: var(--muted); font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 9px; }
+
+  /* goal tracker */
+  .goalwrap { display: flex; flex-direction: column; align-items: center; gap: 22px; }
+  @media(min-width:560px){ .goalwrap { flex-direction: row; } }
+  .bars { flex: 1; width: 100%; display: grid; gap: 14px; }
+  .bar .top { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px; }
+  .bar .track { height: 10px; background: var(--track); border-radius: 99px; overflow: hidden; }
+  .bar .fill { height: 100%; border-radius: 99px; transition: width .4s ease; }
+  .bar .rem { text-align: right; font-size: 11px; margin-top: 4px; color: var(--faint); }
+  .ringlabel { text-align: center; margin-top: 6px; }
+  .ringlabel .l1 { font-weight: 600; font-size: 14px; } .ringlabel .l2 { font-size: 12px; font-weight: 600; }
+
+  /* totals strip */
+  .totals { display: grid; grid-template-columns: repeat(4, 1fr); }
+  .totals > div { text-align: center; padding: 12px 4px; border-left: 1px solid var(--border); }
+  .totals > div:first-child { border-left: none; }
+  .totals .v { font-size: 20px; font-weight: 800; } .totals .v small { font-size: 12px; color: var(--faint); font-weight: 600; }
+  .totals .k { font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--faint); }
+
+  /* lists */
+  ul.list { list-style: none; margin: 0; padding: 0; }
+  ul.list > li { padding: 12px; border-top: 1px solid var(--border); }
+  ul.list > li:first-child { border-top: none; }
+  .entry { display: flex; align-items: flex-start; gap: 10px; }
+  .entry .name { font-weight: 600; }
+  .entry .meta { margin-top: 3px; font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 3px 12px; }
+  .entry .meta b { color: var(--text); font-weight: 700; }
+  .actions { display: flex; flex-shrink: 0; }
+  .empty { text-align: center; padding: 32px 16px; color: var(--faint); font-size: 14px; }
+  .empty svg { width: 30px; height: 30px; margin: 0 auto 8px; }
+  .tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); background: var(--track); padding: 2px 7px; border-radius: 99px; }
+
+  /* suggestions */
+  .suggbox { position: relative; }
+  .sugg { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); background: var(--surface);
+    border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 4px; max-height: 240px; overflow: auto; }
+  .sugg button { display: flex; width: 100%; justify-content: space-between; gap: 8px; text-align: left;
+    padding: 9px 10px; border-radius: 8px; font-size: 14px; }
+  .sugg button:hover, .sugg button.hot { background: var(--track); }
+  .sugg .s2 { font-size: 12px; color: var(--faint); }
+  .hidden { display: none; }
+
+  /* segmented toggle */
+  .seg { display: inline-flex; background: var(--track); border-radius: 12px; padding: 4px; font-size: 14px; }
+  .seg button { padding: 6px 12px; border-radius: 9px; font-weight: 600; color: var(--muted); }
+  .seg button.on { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+
+  /* sets editor */
+  .setrow { display: grid; grid-template-columns: 24px 1fr 1fr 34px; gap: 8px; align-items: center; }
+  .setrow .n { text-align: center; color: var(--faint); font-size: 14px; }
+  .setshead { font-size: 12px; color: var(--faint); font-weight: 500; padding: 0 2px; }
+
+  /* heatmap */
+  .heat { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 1fr); gap: 3px; }
+  .heat .cell { width: 14px; height: 14px; border-radius: 3px; background: var(--track); border: none; padding: 0; }
+  .heat .cell:hover { outline: 2px solid var(--brand); }
+  .heat .cell.future { visibility: hidden; }
+  .legend { display: flex; align-items: center; gap: 4px; justify-content: flex-end; font-size: 11px; color: var(--faint); margin-top: 10px; }
+  .legend .cell { width: 12px; height: 12px; border-radius: 3px; }
+
+  /* bottom nav */
+  nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter: blur(8px); border-top: 1px solid var(--border); }
+  nav.tabs .inner { max-width: 680px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); padding-bottom: env(safe-area-inset-bottom); }
+  nav.tabs button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 9px 0; font-size: 11px; font-weight: 600; color: var(--faint); }
+  nav.tabs button.on { color: var(--brand); }
+  nav.tabs svg { width: 22px; height: 22px; }
+
+  /* toast */
+  .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: 90px; z-index: 50;
+    background: #0f172a; color: #fff; padding: 9px 16px; border-radius: 99px; font-size: 14px; font-weight: 600; box-shadow: var(--shadow); }
+  [data-theme="dark"] .toast { background: #fff; color: #0f172a; }
+  .pop { animation: pop .18s ease-out; }
+  @keyframes pop { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  .libitem { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-top: 1px solid var(--border); }
+  .libitem:first-child { border-top: none; }
+  .libbox { max-height: 320px; overflow: auto; border: 1px solid var(--border); border-radius: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div id="toast"></div>
+
+<script>
+"use strict";
+(function () {
+  /* ============================ Icons ============================ */
+  const I = {
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    trash: '<path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/>',
+    edit: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z"/>',
+    copy: '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    x: '<path d="M18 6 6 18M6 6l12 12"/>',
+    left: '<path d="m15 18-6-6 6-6"/>', right: '<path d="m9 18 6-6-6-6"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/>',
+    moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/>',
+    apple: '<path d="M12 7c0-2 1.5-4 4-4 0 2.5-2 4-4 4Z"/><path d="M12 7c-1.5-1.2-3.3-1.5-4.8-.8C5 7.2 4 9.6 4 12c0 3.6 2.4 9 5 9 1 0 1.6-.5 3-.5s2 .5 3 .5c2.6 0 5-5.4 5-9 0-2.4-1-4.8-3.2-5.8C18 6 16 6.2 14.5 7"/>',
+    dumbbell: '<path d="m6.5 6.5 11 11M21 21l-1-1M3 3l1 1M18 22l4-4M2 6l4-4M3 11l8-8 2 2-8 8-2-2ZM13 21l8-8-2-2-8 8 2 2Z"/>',
+    cal: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+    gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>',
+    down: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
+    up: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
+    note: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/>',
+  };
+  const svg = (name) => `<svg viewBox="0 0 24 24">${I[name]}</svg>`;
+
+  /* ============================ Defaults ============================ */
+  const DEFAULT_GOALS = { calories: 2500, protein: 150, carbs: 250, fat: 80 };
+  const COMMON_FOODS = [
+    { name: "Chicken Breast (150g)", calories: 248, protein: 47, carbs: 0, fat: 5 },
+    { name: "White Rice (1 cup)", calories: 205, protein: 4, carbs: 45, fat: 0 },
+    { name: "Whole Egg", calories: 78, protein: 6, carbs: 1, fat: 5 },
+    { name: "Banana", calories: 105, protein: 1, carbs: 27, fat: 0 },
+    { name: "Greek Yogurt (170g)", calories: 100, protein: 17, carbs: 6, fat: 0 },
+    { name: "Oats (1/2 cup dry)", calories: 150, protein: 5, carbs: 27, fat: 3 },
+    { name: "Whey Protein Scoop", calories: 120, protein: 24, carbs: 3, fat: 2 },
+    { name: "Almonds (28g)", calories: 164, protein: 6, carbs: 6, fat: 14 },
+    { name: "Peanut Butter (1 tbsp)", calories: 94, protein: 4, carbs: 3, fat: 8 },
+    { name: "Salmon (150g)", calories: 280, protein: 39, carbs: 0, fat: 13 },
+    { name: "Sweet Potato (medium)", calories: 112, protein: 2, carbs: 26, fat: 0 },
+    { name: "Broccoli (1 cup)", calories: 55, protein: 4, carbs: 11, fat: 1 },
+  ];
+  const COMMON_EXERCISES = ["Bench Press","Squat","Deadlift","Overhead Press","Barbell Row",
+    "Pull-up","Lat Pulldown","Bicep Curl","Tricep Pushdown","Leg Press","Romanian Deadlift",
+    "Lateral Raise","Incline Dumbbell Press","Plank","Running","Cycling"];
+
+  /* ============================ Utils ============================ */
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  const num = (v) => { const n = parseFloat(v); return (!isFinite(n) || n < 0) ? 0 : n; };
+  const round = (n, dp = 1) => { const f = 10 ** dp; return Math.round((n + Number.EPSILON) * f) / f; };
+  const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  const sumFood = (food = []) => food.reduce((a, f) => {
+    a.calories += +f.calories || 0; a.protein += +f.protein || 0;
+    a.carbs += +f.carbs || 0; a.fat += +f.fat || 0; return a;
+  }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
+
+  /* date keys (local YYYY-MM-DD) */
+  const toKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  const fromKey = (k) => { const [y,m,d] = k.split("-").map(Number); return new Date(y, m-1, d); };
+  const todayKey = () => toKey(new Date());
+  const addDays = (k, n) => { const d = fromKey(k); d.setDate(d.getDate()+n); return toKey(d); };
+  const friendly = (k) => k === todayKey() ? "Today" : k === addDays(todayKey(),-1) ? "Yesterday"
+    : k === addDays(todayKey(),1) ? "Tomorrow"
+    : fromKey(k).toLocaleDateString(undefined, { weekday:"short", month:"short", day:"numeric" });
+  const shortLbl = (k) => fromKey(k).toLocaleDateString(undefined, { month:"short", day:"numeric", year:"numeric" });
+
+  /* ============================ Storage ============================ */
+  const KEY = "kxn-data", TKEY = "kxn-theme";
+  const emptyStore = () => ({ version: 1, goals: { ...DEFAULT_GOALS }, library: [...COMMON_EXERCISES], days: {} });
+  const emptyDay = () => ({ food: [], training: [], notes: "" });
+
+  function normalize(data) {
+    const base = emptyStore();
+    if (!data || typeof data !== "object") return base;
+    const lib = []; const seen = new Set();
+    [...(data.library || []), ...base.library].forEach((e) => {
+      const v = String(e).trim(); if (v && !seen.has(v.toLowerCase())) { seen.add(v.toLowerCase()); lib.push(v); }
+    });
+    return {
+      version: data.version || 1,
+      goals: { ...base.goals, ...(data.goals || {}) },
+      library: lib,
+      days: (data.days && typeof data.days === "object") ? data.days : {},
+    };
+  }
+  function load() {
+    try { const raw = localStorage.getItem(KEY); return raw ? normalize(JSON.parse(raw)) : emptyStore(); }
+    catch (e) { console.warn(e); return emptyStore(); }
+  }
+  let saveTimer;
+  function save() { clearTimeout(saveTimer); saveTimer = setTimeout(() => {
+    try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) { console.error(e); }
+  }, 120); }
+
+  /* ============================ State ============================ */
+  let store = load();
+  let tab = "food";
+  let dateKey = todayKey();
+  const prefersDark = typeof matchMedia !== "undefined" && matchMedia("(prefers-color-scheme: dark)").matches;
+  let theme = localStorage.getItem(TKEY) || (prefersDark ? "dark" : "light");
+  let editingId = null;          // id of food/exercise currently inline-editing
+  let exMode = "detailed";       // exercise form mode
+
+  const getDay = (k) => store.days[k] || emptyDay();
+  function mutateDay(k, fn) {
+    const d = store.days[k] ? { ...store.days[k] } : emptyDay();
+    fn(d); store.days[k] = d; save();
+  }
+  function addToLibrary(name) {
+    const v = (name || "").trim(); if (!v) return;
+    if (!store.library.some((e) => e.toLowerCase() === v.toLowerCase())) { store.library.push(v); save(); }
+  }
+
+  /* ============================ Render helpers ============================ */
+  const app = document.getElementById("app");
+  function render() {
+    document.documentElement.setAttribute("data-theme", theme);
+    const showNav = tab === "food" || tab === "training";
+    app.innerHTML = `
+      <header>
+        <div class="hrow">
+          <div class="logo"><span class="mark">K</span>KXN <span class="sub">Track</span></div>
+          <button class="iconbtn" data-act="theme" title="Toggle theme" aria-label="Toggle theme">${svg(theme==="dark"?"sun":"moon")}</button>
+        </div>
+        ${showNav ? dateNav() : ""}
+      </header>
+      <main>${
+        tab === "food" ? foodTab() :
+        tab === "training" ? trainingTab() :
+        tab === "history" ? historyTab() : settingsTab()
+      }</main>
+      <nav class="tabs"><div class="inner">
+        ${[["food","Food","apple"],["training","Training","dumbbell"],["history","History","cal"],["settings","Settings","gear"]]
+          .map(([id,lbl,ic]) => `<button data-tab="${id}" class="${tab===id?"on":""}">${svg(ic)}${lbl}</button>`).join("")}
+      </div></nav>`;
+    wire();
+  }
+
+  function dateNav() {
+    const isToday = dateKey === todayKey();
+    return `<div class="datenav">
+      <button class="iconbtn" data-act="prevday" aria-label="Previous day">${svg("left")}</button>
+      <label class="datectr">
+        <span class="d1">${friendly(dateKey)}</span>${isToday ? "" : `<span class="d2">${dateKey}</span>`}
+        <input type="date" value="${dateKey}" max="${todayKey()}" data-act="pickdate" aria-label="Pick date" />
+      </label>
+      <button class="iconbtn" data-act="nextday" ${isToday?"disabled style=opacity:.3":""} aria-label="Next day">${svg("right")}</button>
+      ${isToday ? "" : `<button class="todaybtn" data-act="goto-today">Today</button>`}
+    </div>`;
+  }
+
+  /* ---------- Food tab ---------- */
+  function foodTab() {
+    const day = getDay(dateKey);
+    const t = sumFood(day.food), g = store.goals;
+    return `<div class="stack">
+      ${goalTracker(t, g)}
+      <section class="card totals">
+        ${[["Calories",round(t.calories),""],["Protein",round(t.protein),"g"],["Carbs",round(t.carbs),"g"],["Fat",round(t.fat),"g"]]
+          .map(([k,v,u]) => `<div><div class="v">${v}<small>${u}</small></div><div class="k">${k}</div></div>`).join("")}
+      </section>
+      ${foodForm()}
+      ${foodList(day.food)}
+    </div>`;
+  }
+
+  function ring(value, goal) {
+    const size=132, sw=12, r=(size-sw)/2, c=2*Math.PI*r;
+    const pct = goal ? clamp(value/goal,0,1) : 0;
+    const over = goal && value > goal*1.05;
+    const col = over ? "var(--red)" : "var(--brand)";
+    return `<svg width="${size}" height="${size}" style="transform:rotate(-90deg)">
+      <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--track)" stroke-width="${sw}"/>
+      <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${col}" stroke-width="${sw}"
+        stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-pct)}"
+        style="transition:stroke-dashoffset .4s ease"/>
+    </svg>`;
+  }
+  function goalTracker(t, g) {
+    let status, scol;
+    const pct = g.calories ? t.calories/g.calories : 0;
+    if (!g.calories) { status = "Set a calorie goal"; scol = "var(--faint)"; }
+    else if (pct > 1.05) { status = `Over by ${round(t.calories-g.calories)} kcal`; scol = "var(--red)"; }
+    else if (pct >= 0.85) { status = "On track 🎯"; scol = "var(--brand)"; }
+    else { status = `${round(g.calories-t.calories)} kcal to go`; scol = "var(--amber)"; }
+    const rem = round(g.calories - t.calories);
+    return `<section class="card p16">
+      <div class="spread" style="margin-bottom:14px">
+        <span class="sectionTitle">Goal Tracker</span>
+        <span style="font-weight:700;font-size:14px;color:${scol}">${status}</span>
+      </div>
+      <div class="goalwrap">
+        <div>
+          <div style="position:relative;width:132px;height:132px">
+            ${ring(t.calories, g.calories)}
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <span style="font-size:30px;font-weight:800" class="tnum">${round(t.calories)}</span>
+              <span class="faint" style="font-size:12px">of ${g.calories}</span>
+            </div>
+          </div>
+          <div class="ringlabel"><div class="l1">Calories</div>
+            <div class="l2" style="color:${rem>=0?"var(--brand)":"var(--red)"}">${rem>=0?rem+" left":Math.abs(rem)+" over"}</div></div>
+        </div>
+        <div class="bars">
+          ${bar("Protein", t.protein, g.protein, "var(--sky)")}
+          ${bar("Carbs", t.carbs, g.carbs, "var(--amber)")}
+          ${bar("Fat", t.fat, g.fat, "var(--violet)")}
+        </div>
+      </div>
+    </section>`;
+  }
+  function bar(label, v, goal, color) {
+    const pct = goal ? clamp(v/goal,0,1)*100 : 0;
+    const over = goal && v > goal*1.05;
+    const rem = round(goal - v);
+    return `<div class="bar">
+      <div class="top"><span style="font-weight:600">${label}</span>
+        <span class="tnum muted">${round(v)}<span class="faint"> / ${goal}g</span></span></div>
+      <div class="track"><div class="fill" style="width:${pct}%;background:${over?"var(--red)":color}"></div></div>
+      <div class="rem" style="${over?"color:var(--red)":""}">${rem>=0?rem+"g left":Math.abs(rem)+"g over"}</div>
+    </div>`;
+  }
+
+  function foodForm() {
+    return `<form class="card p12 suggbox" data-form="food">
+      <label class="label">Add food</label>
+      <input class="field" name="name" placeholder="e.g. Chicken & rice" autocomplete="off" data-sugg="food" />
+      <div class="sugg hidden" data-suggbox></div>
+      <div class="grid4" style="margin-top:12px">
+        ${[["calories","Calories"],["protein","Protein"],["carbs","Carbs"],["fat","Fat"]].map(([n,l]) =>
+          `<div><label class="label">${l}</label><input class="field center" name="${n}" type="number" min="0" step="any" inputmode="decimal" placeholder="0"/></div>`).join("")}
+      </div>
+      <button class="btn primary full" style="margin-top:12px" type="submit">${svg("plus")} Add entry</button>
+    </form>`;
+  }
+  function foodList(food) {
+    if (!food.length) return `<div class="card empty">${svg("apple")}No food logged yet. Add your first entry above.</div>`;
+    return `<ul class="card list">${food.map((f) => f.id === editingId ? foodEditRow(f) : foodRow(f)).join("")}</ul>`;
+  }
+  function foodRow(f) {
+    return `<li><div class="entry">
+      <div style="min-width:0;flex:1">
+        <div class="name">${esc(f.name)}</div>
+        <div class="meta"><b>${round(f.calories)} kcal</b><span>P ${round(f.protein)}g</span><span>C ${round(f.carbs)}g</span><span>F ${round(f.fat)}g</span></div>
+      </div>
+      <div class="actions">
+        <button class="iconbtn" data-act="dup-food" data-id="${f.id}" title="Duplicate" aria-label="Duplicate">${svg("copy")}</button>
+        <button class="iconbtn" data-act="edit" data-id="${f.id}" title="Edit" aria-label="Edit">${svg("edit")}</button>
+        <button class="iconbtn del" data-act="del-food" data-id="${f.id}" title="Delete" aria-label="Delete">${svg("trash")}</button>
+      </div></div></li>`;
+  }
+  function foodEditRow(f) {
+    return `<li><form data-form="food-edit" data-id="${f.id}">
+      <input class="field" name="name" value="${esc(f.name)}" autofocus />
+      <div class="grid4" style="margin-top:8px">
+        ${["calories","protein","carbs","fat"].map((n) =>
+          `<input class="field center" name="${n}" type="number" min="0" step="any" value="${f[n]}"/>`).join("")}
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
+        <button type="button" class="btn ghost" data-act="cancel-edit">${svg("x")} Cancel</button>
+        <button type="submit" class="btn primary">${svg("check")} Save</button>
+      </div></form></li>`;
+  }
+
+  /* ---------- Training tab ---------- */
+  function trainingTab() {
+    const day = getDay(dateKey);
+    const sets = day.training.reduce((n,e) => n + (e.sets ? e.sets.length : 0), 0);
+    return `<div class="stack">
+      <section class="card totals" style="grid-template-columns:repeat(2,1fr)">
+        <div><div class="v">${day.training.length}</div><div class="k">Exercises</div></div>
+        <div><div class="v">${sets}</div><div class="k">Total sets</div></div>
+      </section>
+      ${exerciseForm()}
+      ${exerciseList(day.training)}
+      <section class="card p12">
+        <label class="label" style="display:flex;align-items:center;gap:6px">${svg("note")} Day notes</label>
+        <textarea class="field" data-act="notes" placeholder="How did training feel today? Energy, soreness, PRs…">${esc(day.notes||"")}</textarea>
+      </section>
+    </div>`;
+  }
+  function exerciseForm() {
+    return `<form class="card p12 suggbox" data-form="exercise">
+      <div class="seg" style="margin-bottom:12px">
+        <button type="button" data-act="exmode" data-mode="detailed" class="${exMode==="detailed"?"on":""}">Detailed</button>
+        <button type="button" data-act="exmode" data-mode="quick" class="${exMode==="quick"?"on":""}">Quick (title only)</button>
+      </div>
+      <label class="label">Exercise</label>
+      <input class="field" name="name" placeholder="e.g. Bench Press" autocomplete="off" data-sugg="exercise" />
+      <div class="sugg hidden" data-suggbox></div>
+      ${exMode === "detailed" ? `
+        <div data-sets style="margin-top:12px;display:grid;gap:8px">
+          <div class="setrow setshead"><span>#</span><span>Reps</span><span>Weight</span><span></span></div>
+          ${setEditRow(0)}
+        </div>
+        <button type="button" class="btn ghost full" style="margin-top:8px" data-act="add-set">${svg("plus")} Add set</button>
+      ` : ""}
+      <input class="field" name="note" placeholder="Notes (optional)" style="margin-top:12px"/>
+      <button class="btn primary full" type="submit" style="margin-top:12px">${svg("plus")} Add exercise</button>
+    </form>`;
+  }
+  function setEditRow(i, reps = "", weight = "") {
+    return `<div class="setrow" data-set>
+      <span class="n">${i+1}</span>
+      <input class="field center" name="reps" type="number" min="0" step="any" inputmode="numeric" placeholder="reps" value="${reps}"/>
+      <input class="field center" name="weight" type="number" min="0" step="any" inputmode="decimal" placeholder="kg/lb" value="${weight}"/>
+      <button type="button" class="iconbtn del" data-act="rm-set" aria-label="Remove set">${svg("x")}</button>
+    </div>`;
+  }
+  function exerciseList(training) {
+    if (!training.length) return `<div class="card empty">${svg("dumbbell")}No exercises logged yet. Add one above.</div>`;
+    return `<ul class="card list">${training.map((e) => e.id === editingId ? exEditRow(e) : exRow(e)).join("")}</ul>`;
+  }
+  function setSummary(sets) { return (sets && sets.length) ? sets.map((s) => `${round(s.reps)}×${round(s.weight)}`).join("  ·  ") : ""; }
+  function exRow(e) {
+    const sum = setSummary(e.sets);
+    return `<li><div class="entry">
+      <div style="min-width:0;flex:1">
+        <div class="row" style="gap:8px"><span class="name">${esc(e.name)}</span>${e.mode==="quick"?'<span class="tag">logged</span>':""}</div>
+        ${sum?`<div class="muted tnum" style="margin-top:4px;font-size:14px">${sum}</div>`:""}
+        ${e.note?`<div class="faint" style="margin-top:4px;font-size:12px;font-style:italic">${esc(e.note)}</div>`:""}
+      </div>
+      <div class="actions">
+        <button class="iconbtn" data-act="edit" data-id="${e.id}" title="Edit" aria-label="Edit">${svg("edit")}</button>
+        <button class="iconbtn del" data-act="del-ex" data-id="${e.id}" title="Delete" aria-label="Delete">${svg("trash")}</button>
+      </div></div></li>`;
+  }
+  function exEditRow(e) {
+    const sets = (e.sets && e.sets.length) ? e.sets : [];
+    return `<li><form data-form="ex-edit" data-id="${e.id}" data-mode="${e.mode}">
+      <input class="field" name="name" value="${esc(e.name)}" autofocus />
+      ${e.mode==="detailed" ? `<div data-sets style="margin-top:8px;display:grid;gap:8px">
+        ${sets.length ? sets.map((s,i) => setEditRow(i, s.reps, s.weight)).join("") : setEditRow(0)}
+      </div>
+      <button type="button" class="btn ghost full" style="margin-top:8px" data-act="add-set">${svg("plus")} Add set</button>` : ""}
+      <input class="field" name="note" value="${esc(e.note||"")}" placeholder="Notes (optional)" style="margin-top:8px"/>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
+        <button type="button" class="btn ghost" data-act="cancel-edit">${svg("x")} Cancel</button>
+        <button type="submit" class="btn primary">${svg("check")} Save</button>
+      </div></form></li>`;
+  }
+
+  /* ---------- History tab ---------- */
+  const WEEKS = 18;
+  function historyTab() {
+    const total = WEEKS*7, start = addDays(todayKey(), -(total-1));
+    const cells = []; for (let i=0;i<total;i++) cells.push(addDays(start,i));
+    const lvlClass = (k) => {
+      const d = store.days[k]; if (!d) return "var(--track)";
+      const cals = sumFood(d.food).calories, hasT = d.training && d.training.length;
+      if (!cals && !hasT) return "var(--track)";
+      if (!cals && hasT) return "color-mix(in srgb, var(--brand) 25%, var(--track))";
+      const ratio = store.goals.calories ? cals/store.goals.calories : 0;
+      const lvl = clamp(Math.ceil(ratio*3),1,4);
+      return `color-mix(in srgb, var(--brand) ${lvl*25}%, var(--track))`;
+    };
+    const logged = Object.entries(store.days)
+      .filter(([,d]) => (d.food&&d.food.length)||(d.training&&d.training.length)||d.notes)
+      .map(([k,d]) => ({ k, d, t: sumFood(d.food) }))
+      .sort((a,b) => a.k < b.k ? 1 : -1);
+    return `<div class="stack">
+      <section class="card p16">
+        <div class="sectionTitle" style="margin-bottom:12px">Activity — last ${WEEKS} weeks</div>
+        <div style="overflow-x:auto;padding-bottom:4px"><div class="heat">
+          ${cells.map((k) => { const fut = k > todayKey();
+            return `<button class="cell ${fut?"future":""}" ${fut?"disabled":""} data-act="goto" data-key="${k}"
+              style="background:${fut?"":lvlClass(k)}" title="${shortLbl(k)}" aria-label="${shortLbl(k)}"></button>`; }).join("")}
+        </div></div>
+        <div class="legend"><span>Less</span>
+          ${[0,1,2,3,4].map((l) => `<span class="cell" style="background:color-mix(in srgb, var(--brand) ${l*25}%, var(--track))"></span>`).join("")}
+          <span>More</span></div>
+      </section>
+      <div>
+        <div class="sectionTitle" style="padding:0 4px 8px">Logged days</div>
+        ${logged.length === 0 ? `<div class="card empty">No history yet — start logging on the Food or Training tabs.</div>`
+        : `<ul class="card list">${logged.map(({k,d,t}) => `
+            <li style="padding:0"><button data-act="goto" data-key="${k}" style="width:100%;text-align:left;padding:12px;display:flex;align-items:center;gap:12px;background:none">
+              <div style="flex:1;min-width:0"><div style="font-weight:600">${friendly(k)}</div><div class="faint" style="font-size:12px">${shortLbl(k)}</div></div>
+              <div class="muted row" style="gap:12px;font-size:12px">
+                <span class="row" style="gap:4px">${svg("apple")}${round(t.calories)} kcal</span>
+                <span class="row" style="gap:4px">${svg("dumbbell")}${d.training?d.training.length:0}</span>
+              </div>${svg("right")}
+            </button></li>`).join("")}</ul>`}
+      </div>
+    </div>`;
+  }
+
+  /* ---------- Settings tab ---------- */
+  function settingsTab() {
+    const g = store.goals;
+    return `<div class="stack">
+      <section class="card p16">
+        <div class="sectionTitle" style="margin-bottom:12px">Daily Goals</div>
+        <form data-form="goals">
+          <div class="grid4" style="gap:12px">
+            ${[["calories","Calories","kcal"],["protein","Protein","g"],["carbs","Carbs","g"],["fat","Fat","g"]].map(([n,l,u]) =>
+              `<div><label class="label">${l} (${u})</label><input class="field tnum" name="${n}" type="number" min="0" step="any" value="${g[n]}"/></div>`).join("")}
+          </div>
+          <div class="row" style="margin-top:12px;gap:8px">
+            <button class="btn primary" type="submit">Save goals</button>
+            <button class="btn ghost" type="button" data-act="reset-goals">Reset defaults</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card p16 spread">
+        <div><div class="sectionTitle">Appearance</div><div class="muted" style="font-size:14px">${theme==="dark"?"Dark mode":"Light mode"}</div></div>
+        <button class="btn ghost" data-act="theme">${svg(theme==="dark"?"sun":"moon")} ${theme==="dark"?"Light":"Dark"}</button>
+      </section>
+
+      <section class="card p16">
+        <div class="sectionTitle" style="margin-bottom:12px">Exercise Library (${store.library.length})</div>
+        <input class="field" data-act="libfilter" placeholder="Filter exercises…" value="${esc(libFilter)}" style="margin-bottom:8px"/>
+        <div class="libbox">${
+          store.library.filter((e) => e.toLowerCase().includes(libFilter.toLowerCase()))
+            .map((name) => name === editingLib
+              ? `<div class="libitem"><input class="field" style="flex:1;padding:6px 10px" data-act="libedit-input" value="${esc(name)}" autofocus/>
+                  <button class="iconbtn" data-act="libsave" data-name="${esc(name)}">${svg("check")}</button>
+                  <button class="iconbtn" data-act="libcancel">${svg("x")}</button></div>`
+              : `<div class="libitem"><span style="flex:1;font-size:14px">${esc(name)}</span>
+                  <button class="iconbtn" data-act="librename" data-name="${esc(name)}" aria-label="Rename">${svg("edit")}</button>
+                  <button class="iconbtn del" data-act="libdel" data-name="${esc(name)}" aria-label="Delete">${svg("trash")}</button></div>`
+            ).join("") || `<div class="empty" style="padding:16px">No matches.</div>`
+        }</div>
+      </section>
+
+      <section class="card p16">
+        <div class="sectionTitle" style="margin-bottom:12px">Backup & Data</div>
+        <div class="row" style="flex-wrap:wrap;gap:8px">
+          <button class="btn ghost" data-act="export">${svg("down")} Export JSON</button>
+          <button class="btn ghost" data-act="import">${svg("up")} Import JSON</button>
+          <button class="btn danger" data-act="reset-all">${svg("trash")} Reset all</button>
+        </div>
+        <input type="file" accept="application/json,.json" data-act="importfile" class="hidden"/>
+        <p class="faint" style="font-size:12px;margin:12px 0 0">All data lives in this browser. Export regularly to keep a backup.</p>
+      </section>
+    </div>`;
+  }
+  let libFilter = "", editingLib = null;
+
+  /* ============================ Toast ============================ */
+  let toastT;
+  function toast(msg) {
+    const el = document.getElementById("toast");
+    el.innerHTML = `<div class="toast pop">${esc(msg)}</div>`;
+    clearTimeout(toastT); toastT = setTimeout(() => (el.innerHTML = ""), 1800);
+  }
+
+  /* ============================ Suggestions ============================ */
+  function showSuggestions(input, kind) {
+    const box = input.parentElement.querySelector("[data-suggbox]");
+    const q = input.value.trim().toLowerCase();
+    if (!q) { box.classList.add("hidden"); return; }
+    let items = "";
+    if (kind === "food") {
+      const matches = COMMON_FOODS.filter((f) => f.name.toLowerCase().includes(q)).slice(0,6);
+      if (!matches.length) { box.classList.add("hidden"); return; }
+      items = matches.map((m) => `<button type="button" data-pick='${esc(JSON.stringify(m))}'>
+        <span>${esc(m.name)}</span><span class="s2">${m.calories} kcal · ${m.protein}p</span></button>`).join("");
+    } else {
+      const matches = store.library.filter((e) => e.toLowerCase().includes(q) && e.toLowerCase() !== q).slice(0,6);
+      if (!matches.length) { box.classList.add("hidden"); return; }
+      items = matches.map((m) => `<button type="button" data-pickname="${esc(m)}">${esc(m)}</button>`).join("");
+    }
+    box.innerHTML = items; box.classList.remove("hidden");
+  }
+
+  /* ============================ Event wiring ============================ */
+  function wire() {
+    // Tabs
+    app.querySelectorAll("[data-tab]").forEach((b) => b.onclick = () => { tab = b.dataset.tab; editingId = null; render(); });
+
+    // Clicks (delegated)
+    app.onclick = (e) => {
+      const t = e.target.closest("[data-act]");
+      if (!t) {
+        // hide any open suggestion box when clicking elsewhere
+        app.querySelectorAll("[data-suggbox]").forEach((b) => b.classList.add("hidden"));
+        return;
+      }
+      const act = t.dataset.act, id = t.dataset.id;
+      switch (act) {
+        case "theme": theme = theme === "dark" ? "light" : "dark"; localStorage.setItem(TKEY, theme); render(); break;
+        case "prevday": dateKey = addDays(dateKey,-1); editingId=null; render(); break;
+        case "nextday": dateKey = addDays(dateKey,1); editingId=null; render(); break;
+        case "goto-today": dateKey = todayKey(); editingId=null; render(); break;
+        case "goto": dateKey = t.dataset.key; tab = "food"; editingId=null; render(); break;
+        case "edit": editingId = id; render(); break;
+        case "cancel-edit": editingId = null; render(); break;
+        case "dup-food": {
+          mutateDay(dateKey, (d) => { const o = d.food.find((f)=>f.id===id); if(!o)return;
+            const i = d.food.findIndex((f)=>f.id===id); d.food = d.food.slice(); d.food.splice(i+1,0,{...o,id:uid()}); });
+          render(); break;
+        }
+        case "del-food": mutateDay(dateKey, (d) => { d.food = d.food.filter((f)=>f.id!==id); }); editingId=null; render(); break;
+        case "del-ex": mutateDay(dateKey, (d) => { d.training = d.training.filter((x)=>x.id!==id); }); editingId=null; render(); break;
+        case "exmode": exMode = t.dataset.mode; render(); break;
+        case "add-set": {
+          const wrap = t.closest("form").querySelector("[data-sets]");
+          const i = wrap.querySelectorAll("[data-set]").length;
+          wrap.insertAdjacentHTML("beforeend", setEditRow(i)); renumberSets(wrap); break;
+        }
+        case "rm-set": {
+          const wrap = t.closest("[data-sets]"); const rows = wrap.querySelectorAll("[data-set]");
+          if (rows.length > 1) { t.closest("[data-set]").remove(); renumberSets(wrap); } break;
+        }
+        // settings: goals
+        case "reset-goals": { const el = app.querySelector('[data-form="goals"]').elements;
+          el.calories.value=2500; el.protein.value=150; el.carbs.value=250; el.fat.value=80; break; }
+        // settings: library
+        case "librename": editingLib = t.dataset.name; render(); break;
+        case "libcancel": editingLib = null; render(); break;
+        case "libsave": {
+          const v = t.closest(".libitem").querySelector("[data-act=libedit-input]").value.trim();
+          if (v) store.library = store.library.map((x) => x === t.dataset.name ? v : x);
+          editingLib = null; save(); render(); break;
+        }
+        case "libdel": store.library = store.library.filter((x) => x !== t.dataset.name); save(); render(); break;
+        // settings: data
+        case "export": doExport(); break;
+        case "import": app.querySelector("[data-act=importfile]").click(); break;
+        case "reset-all":
+          if (confirm("Delete ALL data and start fresh? This cannot be undone.")) {
+            store = emptyStore(); save(); editingId=null; libFilter=""; render(); toast("All data reset");
+          } break;
+      }
+    };
+
+    // Suggestion picks (mousedown so it fires before input blur)
+    app.querySelectorAll("[data-suggbox]").forEach((box) => {
+      box.addEventListener("mousedown", (e) => {
+        const pick = e.target.closest("[data-pick]"), pickName = e.target.closest("[data-pickname]");
+        const el = box.closest("form").elements;
+        if (pick) { e.preventDefault(); const m = JSON.parse(pick.dataset.pick);
+          el.name.value = m.name; el.calories.value = m.calories; el.protein.value = m.protein;
+          el.carbs.value = m.carbs; el.fat.value = m.fat; box.classList.add("hidden"); el.name.focus(); }
+        else if (pickName) { e.preventDefault(); el.name.value = pickName.dataset.pickname; box.classList.add("hidden"); el.name.focus(); }
+      });
+    });
+
+    // Suggestion input typing
+    app.querySelectorAll("[data-sugg]").forEach((inp) => {
+      inp.addEventListener("input", () => showSuggestions(inp, inp.dataset.sugg));
+      inp.addEventListener("focus", () => showSuggestions(inp, inp.dataset.sugg));
+      inp.addEventListener("blur", () => setTimeout(() => {
+        const box = inp.parentElement.querySelector("[data-suggbox]"); if (box) box.classList.add("hidden");
+      }, 150));
+    });
+
+    // Day notes (persist without re-render to keep focus)
+    const notes = app.querySelector("[data-act=notes]");
+    if (notes) notes.addEventListener("input", () => mutateDay(dateKey, (d) => { d.notes = notes.value; }));
+
+    // Library filter (avoid full re-render to keep focus — re-render manually keeping focus)
+    const lf = app.querySelector("[data-act=libfilter]");
+    if (lf) lf.addEventListener("input", () => { libFilter = lf.value; render();
+      const n = app.querySelector("[data-act=libfilter]"); if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } });
+
+    // Import file
+    const imp = app.querySelector("[data-act=importfile]");
+    if (imp) imp.addEventListener("change", onImportFile);
+
+    // Forms
+    app.querySelectorAll("form[data-form]").forEach((f) => f.addEventListener("submit", onSubmit));
+  }
+
+  function renumberSets(wrap) {
+    wrap.querySelectorAll("[data-set] .n").forEach((n, i) => (n.textContent = i + 1));
+  }
+
+  function readSets(form) {
+    const sets = [];
+    form.querySelectorAll("[data-set]").forEach((row) => {
+      const reps = row.querySelector("[name=reps]").value, weight = row.querySelector("[name=weight]").value;
+      if (reps !== "" || weight !== "") sets.push({ reps: num(reps), weight: num(weight) });
+    });
+    return sets;
+  }
+
+  function onSubmit(e) {
+    e.preventDefault();
+    const f = e.currentTarget, el = f.elements, kind = f.dataset.form;
+    // Use f.elements.X (not f.X) — `name` collides with the form's own .name property.
+    if (kind === "food" || kind === "food-edit") {
+      const name = el.name.value.trim(); if (!name) { el.name.focus(); return; }
+      const entry = { name, calories: num(el.calories.value), protein: num(el.protein.value), carbs: num(el.carbs.value), fat: num(el.fat.value) };
+      if (kind === "food") {
+        mutateDay(dateKey, (d) => { d.food = [...d.food, { id: uid(), ...entry }]; });
+        f.reset(); render(); app.querySelector('[data-form="food"] [name=name]').focus();
+      } else {
+        const id = f.dataset.id; mutateDay(dateKey, (d) => { d.food = d.food.map((x) => x.id===id ? { ...x, ...entry } : x); });
+        editingId = null; render();
+      }
+    } else if (kind === "exercise" || kind === "ex-edit") {
+      const name = el.name.value.trim(); if (!name) { el.name.focus(); return; }
+      const mode = kind === "exercise" ? exMode : f.dataset.mode;
+      const ex = { name, mode, note: el.note.value.trim(), sets: mode === "detailed" ? readSets(f) : [] };
+      if (kind === "exercise") {
+        mutateDay(dateKey, (d) => { d.training = [...d.training, { id: uid(), ...ex }]; });
+        addToLibrary(name); f.reset(); render(); app.querySelector('[data-form="exercise"] [name=name]').focus();
+      } else {
+        const id = f.dataset.id; mutateDay(dateKey, (d) => { d.training = d.training.map((x) => x.id===id ? { ...x, ...ex } : x); });
+        addToLibrary(name); editingId = null; render();
+      }
+    } else if (kind === "goals") {
+      store.goals = { calories: num(el.calories.value), protein: num(el.protein.value), carbs: num(el.carbs.value), fat: num(el.fat.value) };
+      save(); render(); toast("Goals saved ✓");
+    }
+  }
+
+  /* ============================ Export / Import ============================ */
+  function doExport() {
+    const blob = new Blob([JSON.stringify(store, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob), a = document.createElement("a");
+    a.href = url; a.download = `kxn-backup-${todayKey()}.json`;
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    toast("Backup downloaded ✓");
+  }
+  function onImportFile(e) {
+    const file = e.target.files && e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result);
+        if (!confirm("Importing will replace all current data. Continue?")) return;
+        store = normalize(parsed); save(); editingId = null; render(); toast("Backup imported ✓");
+      } catch (err) { alert("That file is not valid KXN backup JSON."); }
+      finally { e.target.value = ""; }
+    };
+    reader.onerror = () => alert("Could not read the file.");
+    reader.readAsText(file);
+  }
+
+  /* ============================ Go ============================ */
+  render();
+})();
+</script>
+</body>
+</html>
