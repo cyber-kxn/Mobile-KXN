@@ -166,6 +166,38 @@ export function useStore() {
     }))
   }, [])
 
+  // --- Custom food index (per-100g foods) ---------------------------------
+
+  /** Add or update a custom food (matched case-insensitively by name). */
+  const saveCustomFood = useCallback((food, originalName) => {
+    const name = (food.n || '').trim()
+    if (!name) return
+    const entry = {
+      n: name,
+      kcal: Number(food.kcal) || 0,
+      p: Number(food.p) || 0,
+      c: Number(food.c) || 0,
+      f: Number(food.f) || 0,
+    }
+    setStore((prev) => {
+      const matchKey = (originalName || name).toLowerCase()
+      const existingIdx = prev.foods.findIndex(
+        (x) => x.n.toLowerCase() === matchKey
+      )
+      const foods = [...prev.foods]
+      if (existingIdx >= 0) foods[existingIdx] = entry
+      else foods.push(entry)
+      return { ...prev, foods }
+    })
+  }, [])
+
+  const deleteCustomFood = useCallback((name) => {
+    setStore((prev) => ({
+      ...prev,
+      foods: prev.foods.filter((x) => x.n !== name),
+    }))
+  }, [])
+
   // --- Bulk (import / reset) ----------------------------------------------
 
   const replaceStore = useCallback((next) => setStore(next), [])
@@ -187,6 +219,9 @@ export function useStore() {
     // library
     renameLibraryItem,
     deleteLibraryItem,
+    // custom foods
+    saveCustomFood,
+    deleteCustomFood,
     // bulk
     replaceStore,
   }

@@ -58,7 +58,12 @@ Because it's still just a web app, your data stays **local to each device**. Use
 ### Food / Calories
 - One flat, chronological daily list — no breakfast/lunch/dinner buckets.
 - Each entry: **name, calories, protein, carbs, fat** — all editable inline.
-- Quick-add form with **smart suggestions** for common foods (auto-fills macros).
+- **Food database (~60 built-in foods):** search a food, type the **grams**, and
+  the macros are **calculated automatically** (values are per-100g, scaled to the
+  amount). Everything stays editable, and the grams are shown on the entry.
+- **Custom foods:** add your own per-100g foods in **Settings → Food Database**
+  (edit/delete anytime); they appear in search and override built-ins by name.
+- Type any free-text name and enter macros manually whenever you prefer.
 - **Duplicate** an entry in one tap; edit or delete any entry inline.
 - **Live daily totals** and a **Goal Tracker** with a calorie ring + macro bars,
   remaining amounts, and an "under / on track / over" color-coded verdict.
