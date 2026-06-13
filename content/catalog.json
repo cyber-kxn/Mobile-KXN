@@ -1,0 +1,47 @@
+{
+  "version": "2026.06.13",
+  "paths": [
+    {
+      "id": "p-foundations",
+      "slug": "cyber-foundations",
+      "title": "Cyber Foundations",
+      "track": "foundations",
+      "difficulty": "intro",
+      "moduleRoomIds": ["r-linux-recon", "r-privesc-linux", "r-soc-triage"]
+    },
+    {
+      "id": "p-offense",
+      "slug": "offensive-operator",
+      "title": "Offensive Operator",
+      "track": "offensive",
+      "difficulty": "hard",
+      "moduleRoomIds": ["r-web-injection", "r-privesc-linux", "r-ad-foothold"]
+    },
+    {
+      "id": "p-defense",
+      "slug": "blue-team-analyst",
+      "title": "Blue Team Analyst",
+      "track": "defensive",
+      "difficulty": "medium",
+      "moduleRoomIds": ["r-soc-triage", "r-dfir-memory"]
+    },
+    {
+      "id": "p-modern",
+      "slug": "modern-frontiers",
+      "title": "Modern Frontiers",
+      "track": "ai-security",
+      "difficulty": "hard",
+      "moduleRoomIds": ["r-llm-redteam", "r-cloud-iam"]
+    }
+  ],
+  "rooms": [
+    { "id": "r-linux-recon", "slug": "linux-landing-zone", "title": "Linux Landing Zone", "track": "foundations", "kind": "walkthrough", "difficulty": "intro", "xp": 120, "questions": ["q1", "q2", "q3"] },
+    { "id": "r-web-injection", "slug": "injection-clinic", "title": "Injection Clinic", "track": "web", "kind": "challenge", "difficulty": "medium", "xp": 260, "questions": ["q1", "q2", "q3"] },
+    { "id": "r-ad-foothold", "slug": "forest-foothold", "title": "Forest Foothold", "track": "active-directory", "kind": "network", "difficulty": "hard", "xp": 480, "questions": ["q1", "q2", "q3"] },
+    { "id": "r-soc-triage", "slug": "blue-pulse", "title": "Blue Pulse: Alert Triage", "track": "defensive", "kind": "walkthrough", "difficulty": "easy", "xp": 200, "questions": ["q1", "q2"] },
+    { "id": "r-dfir-memory", "slug": "ghost-in-ram", "title": "Ghost in the RAM", "track": "dfir", "kind": "challenge", "difficulty": "hard", "xp": 420, "questions": ["q1", "q2"] },
+    { "id": "r-llm-redteam", "slug": "prompt-breaker", "title": "Prompt Breaker", "track": "ai-security", "kind": "ctf", "difficulty": "medium", "xp": 320, "questions": ["q1", "q2"] },
+    { "id": "r-cloud-iam", "slug": "cloud-keymaster", "title": "Cloud Keymaster", "track": "cloud", "kind": "network", "difficulty": "hard", "xp": 440, "questions": ["q1", "q2"] },
+    { "id": "r-privesc-linux", "slug": "root-cause", "title": "Root Cause", "track": "privesc", "kind": "challenge", "difficulty": "medium", "xp": 300, "questions": ["q1", "q2"] }
+  ]
+}

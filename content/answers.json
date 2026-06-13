@@ -1,0 +1,22 @@
+{
+  "_comment": "SERVER-SIDE ONLY. Canonical flag/answer values. The API hashes these at load time and never returns plaintext to clients. In production, store only hashes and inject via secret manager.",
+  "r-linux-recon:q1": "operator",
+  "r-linux-recon:q2": "NETHEX{w3lc0me_t0_th3_r4ng3}",
+  "r-linux-recon:q3": "netcheck",
+  "r-web-injection:q1": "5",
+  "r-web-injection:q2": "NETHEX{sql1_byp4ss_4ll_th3_th1ngs}",
+  "r-web-injection:q3": "db",
+  "r-privesc-linux:q1": "python3",
+  "r-privesc-linux:q2": "NETHEX{c4p4b1l1t13s_c4n_r00t}",
+  "r-ad-foothold:q1": "4",
+  "r-ad-foothold:q2": "Summer2026!",
+  "r-ad-foothold:q3": "NETHEX{d0m41n_4dm1n_4ch13v3d}",
+  "r-soc-triage:q1": "T1566.001",
+  "r-soc-triage:q2": "3",
+  "r-dfir-memory:q1": "3148",
+  "r-dfir-memory:q2": "NETHEX{c2.shadowlink.net}",
+  "r-llm-redteam:q1": "NETHEX{0bsidian_k3y}",
+  "r-llm-redteam:q2": "NETHEX{c0nfus3d_d3puty}",
+  "r-cloud-iam:q1": "app-frontend-role",
+  "r-cloud-iam:q2": "NETHEX{p4ssr0l3_t0_4dm1n}"
+}

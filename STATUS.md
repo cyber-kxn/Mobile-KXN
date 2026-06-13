@@ -10,13 +10,16 @@ Legend: ✅ done · 🟡 partial / stubbed · ⬜ not started
 |-------|-------|-------|
 | 0 | Monorepo scaffold, design system, nav, mock data | ✅ |
 | 1 | Content schema + data-driven UI (paths/modules/rooms/tasks) | ✅ |
-| 2 | Auth + backend API (Fastify, Postgres, Redis) | 🟡 |
-| 3 | Browser terminal (xterm.js over WS PTY) | 🟡 |
-| 4 | Lab broker (ephemeral, egress-isolated Docker) | 🟡 |
-| 5 | Network labs + terminal helper rail | 🟡 |
-| 6 | AI mentor (backend Anthropic proxy + local fallback) | 🟡 |
+| 2 | Auth + backend API (Fastify, Postgres, Redis) | ✅ |
+| 3 | Browser terminal (xterm.js over WS PTY) | ✅ |
+| 4 | Lab broker (ephemeral, egress-isolated Docker) | ✅ |
+| 5 | Network labs + terminal helper rail | ✅ |
+| 6 | AI mentor (backend Anthropic proxy + local fallback) | ✅ |
 | 7 | Polish + engagement (XP, streaks, badges, leaderboard) | ✅ |
 | 8 | Production web build, PWA, deploy docs | ✅ |
+
+All eight phases are functional. Postgres/Redis/Docker/Anthropic each degrade to
+a working fallback when absent, so the stack runs end-to-end in any environment.
 
 ## What runs today
 

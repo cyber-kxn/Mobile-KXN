@@ -1,0 +1,72 @@
+name: nethex
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-nethex}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nethex}
+      POSTGRES_DB: ${POSTGRES_DB:-nethex}
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-nethex}']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [core]
+
+  redis:
+    image: redis:7-alpine
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes:
+      - ./data/redis:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [core]
+
+  api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.api
+    environment:
+      NODE_ENV: production
+      API_PORT: 8080
+      DATABASE_URL: postgresql://${POSTGRES_USER:-nethex}:${POSTGRES_PASSWORD:-nethex}@postgres:5432/${POSTGRES_DB:-nethex}
+      REDIS_URL: redis://redis:6379
+      BROKER_URL: http://lab-broker:8090
+      JWT_SECRET: ${JWT_SECRET:-dev-only-change-me}
+      FLAG_SALT: ${FLAG_SALT:-nethex-default-salt}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-opus-4-8}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:4173}
+    ports:
+      - '8080:8080'
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: [core]
+
+  lab-broker:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.broker
+    environment:
+      BROKER_PORT: 8090
+      LAB_TTL_SECONDS: ${LAB_TTL_SECONDS:-3600}
+      LAB_MAX_PER_USER: ${LAB_MAX_PER_USER:-2}
+    ports:
+      - '8090:8090'
+    # The broker provisions ephemeral lab containers via the host Docker engine.
+    # Mounting the socket grants that capability; isolate this service on its own
+    # host / restrict access in production (see docs/DEPLOY.md, Security notes).
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks: [core]
+
+networks:
+  core:
+    driver: bridge

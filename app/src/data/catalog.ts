@@ -333,7 +333,7 @@ export const ROOMS: Room[] = [
         { hostname: 'chatapp', image: 'nethex/lab-llm-app', role: 'target' },
       ],
       ttlSeconds: 3600,
-      egress: 'none',
+      egress: 'internal',
     },
     tasks: [
       {

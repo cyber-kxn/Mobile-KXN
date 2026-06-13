@@ -1,0 +1,22 @@
+# ─── Sample ephemeral lab target: nethex/lab-linux-base ───────────────────
+# Build: docker build -t nethex/lab-linux-base -f infra/labs/Dockerfile.linux-base .
+# Provisioned by the broker with NetworkMode=none (zero egress), CapDrop=ALL,
+# no-new-privileges, memory/pid/cpu limits, and AutoRemove on exit.
+FROM alpine:3.20
+
+RUN apk add --no-cache bash coreutils findutils procps shadow \
+  && adduser -D -h /home/operator operator
+
+# Seed the room's challenge content. Flags are validated by hash server-side;
+# this plaintext only exists inside the throwaway container.
+RUN mkdir -p /home/operator \
+  && echo 'NETHEX{w3lc0me_t0_th3_r4ng3}' > /home/operator/flag.txt \
+  && printf '# Recon notes\n- enumerate users\n- check SUID binaries\n' > /home/operator/notes.md \
+  && chown -R operator:operator /home/operator
+
+# SUID demo binary for the privilege-escalation task.
+RUN cp /bin/busybox /usr/local/bin/netcheck && chmod 4755 /usr/local/bin/netcheck
+
+USER operator
+WORKDIR /home/operator
+CMD ["/bin/bash"]
