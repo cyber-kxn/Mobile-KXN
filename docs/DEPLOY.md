@@ -63,6 +63,34 @@ docker build -t nethex/lab-linux-base -f infra/labs/Dockerfile.linux-base .
 Until an image exists, the affected lab transparently falls back to simulated
 mode (logged by the broker).
 
+### Get a REAL Kali terminal on your desktop (simple steps)
+
+On a desktop/laptop with **Docker Desktop** running:
+
+```bash
+# 1. Clone and enter the repo
+git clone https://github.com/cyber-kxn/Mobile-KXN.git
+cd Mobile-KXN
+
+# 2. Start the backend (API + Postgres + Redis + lab broker)
+cp .env.example .env
+npm run infra:up
+
+# 3. Build the lab images, including the real Kali attacker box
+bash infra/labs/build.sh        # first run pulls Kali — a few minutes
+
+# 4. Start the web app pointed at your local backend
+cd app
+npm install
+printf "VITE_API_URL=http://localhost:8080\nVITE_WS_URL=ws://localhost:8080\n" > .env.local
+npm run dev                     # open http://localhost:5173
+```
+
+Now open an **offensive room** (e.g. *Injection Clinic* or *Forest Foothold*),
+hit **Deploy lab**, and the terminal drops you into a genuine **Kali** container
+(`nethex/lab-attacker`) — egress-isolated, auto-expiring. Single-host rooms give
+you the Linux target instead. That's it: your PC hosts everything locally.
+
 ## 4. Production topology
 
 ```

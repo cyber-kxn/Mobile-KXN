@@ -1,0 +1,36 @@
+# ─── Real Kali attacker box: nethex/lab-attacker ──────────────────────────
+# The broker launches this as the "attacker" node in offensive rooms and bridges
+# your browser terminal straight into it. Built once on your machine; at runtime
+# the broker runs it with egress DROPPED (internal-only network), CapDrop, etc.
+#
+# Build:  docker build -t nethex/lab-attacker -f infra/labs/Dockerfile.attacker .
+# Note:   first build pulls the Kali base (~hundreds of MB) — needs internet at
+#         BUILD time only. Runtime stays isolated.
+FROM kalilinux/kali-rolling
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# A pragmatic, lightweight attacker toolset (not the full ~4GB kali metapackage).
+# Add more later with: apt-get install kali-linux-headless
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      bash \
+      iproute2 \
+      iputils-ping \
+      net-tools \
+      dnsutils \
+      curl \
+      wget \
+      netcat-traditional \
+      nmap \
+      python3 \
+      python3-pip \
+      seclists \
+      ffuf \
+      netexec \
+      git \
+      vim \
+      less \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /root
+CMD ["/bin/bash"]
