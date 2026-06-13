@@ -1,8 +1,69 @@
 import { useRef, useState } from 'react'
-import { Trash, Edit, Check, X, Download, Upload, Sun, Moon } from '../Icons.jsx'
+import { Trash, Edit, Check, X, Plus, Download, Upload, Sun, Moon } from '../Icons.jsx'
 import { exportStore, importFromFile } from '../../lib/storage.js'
 import { emptyStore, DEFAULT_GOALS } from '../../lib/defaults.js'
 import { toNonNegNumber } from '../../lib/utils.js'
+
+const EMPTY_FOOD = { n: '', kcal: '', p: '', c: '', f: '' }
+
+/** Add / edit a custom per-100g food. Used inside the Food Database section. */
+function CustomFoodForm({ initial, onSave, onCancel }) {
+  const [draft, setDraft] = useState(initial || EMPTY_FOOD)
+  function save() {
+    if (!(draft.n || '').trim()) return
+    onSave({
+      n: draft.n.trim(),
+      kcal: toNonNegNumber(draft.kcal),
+      p: toNonNegNumber(draft.p),
+      c: toNonNegNumber(draft.c),
+      f: toNonNegNumber(draft.f),
+    })
+    setDraft(EMPTY_FOOD)
+  }
+  return (
+    <div className="rounded-xl border border-slate-200 p-2.5 dark:border-slate-800">
+      <input
+        className="field mb-2"
+        placeholder="Food name (values per 100 g)"
+        value={draft.n}
+        onChange={(e) => setDraft({ ...draft, n: e.target.value })}
+      />
+      <div className="grid grid-cols-4 gap-2">
+        {[
+          ['kcal', 'Cal'],
+          ['p', 'Protein'],
+          ['c', 'Carbs'],
+          ['f', 'Fat'],
+        ].map(([k, lbl]) => (
+          <div key={k}>
+            <label className="label">{lbl}</label>
+            <input
+              className="field px-2 text-center tabular-nums"
+              type="number"
+              min="0"
+              step="any"
+              inputMode="decimal"
+              placeholder="0"
+              value={draft[k]}
+              onChange={(e) => setDraft({ ...draft, [k]: e.target.value })}
+            />
+          </div>
+        ))}
+      </div>
+      <div className="mt-2 flex justify-end gap-2">
+        {onCancel && (
+          <button className="btn-ghost" onClick={onCancel}>
+            <X width={16} height={16} /> Cancel
+          </button>
+        )}
+        <button className="btn-primary" onClick={save}>
+          {initial ? <Check width={16} height={16} /> : <Plus width={16} height={16} />}
+          {initial ? 'Save' : 'Add food'}
+        </button>
+      </div>
+    </div>
+  )
+}
 
 function GoalInput({ id, label, unit, value, onChange }) {
   return (
@@ -83,9 +144,10 @@ function LibraryItem({ name, onRename, onDelete }) {
   )
 }
 
-export default function SettingsTab({ store, actions, theme }) {
+export default function SettingsTab({ store, actions, theme, foods }) {
   const [goals, setLocalGoals] = useState(store.goals)
   const [libFilter, setLibFilter] = useState('')
+  const [editingFood, setEditingFood] = useState(null) // custom food name being edited
   const [msg, setMsg] = useState('')
   const fileRef = useRef(null)
 
@@ -203,6 +265,68 @@ export default function SettingsTab({ store, actions, theme }) {
             ))
           )}
         </ul>
+      </section>
+
+      {/* Custom food index */}
+      <section className="card p-4">
+        <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-400">
+          Food Database
+        </h2>
+        <p className="mb-3 text-xs text-slate-400">
+          {foods.length} foods available when adding entries (built-ins + your
+          own). Add custom foods below — values are <strong>per 100 g</strong>.
+        </p>
+
+        <CustomFoodForm onSave={(f) => { actions.saveCustomFood(f); flash('Food added ✓') }} />
+
+        {store.foods.length > 0 && (
+          <ul className="mt-3 divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 dark:divide-slate-800 dark:border-slate-800">
+            {store.foods.map((food) =>
+              editingFood === food.n ? (
+                <li key={food.n} className="p-2.5">
+                  <CustomFoodForm
+                    initial={{
+                      n: food.n,
+                      kcal: food.kcal,
+                      p: food.p,
+                      c: food.c,
+                      f: food.f,
+                    }}
+                    onSave={(f) => {
+                      actions.saveCustomFood(f, food.n)
+                      setEditingFood(null)
+                      flash('Food updated ✓')
+                    }}
+                    onCancel={() => setEditingFood(null)}
+                  />
+                </li>
+              ) : (
+                <li key={food.n} className="flex items-center gap-2 p-2.5">
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium">{food.n}</div>
+                    <div className="text-xs text-slate-400">
+                      per 100 g · {food.kcal} kcal · P {food.p} · C {food.c} · F {food.f}
+                    </div>
+                  </div>
+                  <button
+                    className="btn-icon"
+                    onClick={() => setEditingFood(food.n)}
+                    aria-label={`Edit ${food.n}`}
+                  >
+                    <Edit width={15} height={15} />
+                  </button>
+                  <button
+                    className="btn-icon hover:!text-red-500"
+                    onClick={() => actions.deleteCustomFood(food.n)}
+                    aria-label={`Delete ${food.n}`}
+                  >
+                    <Trash width={15} height={15} />
+                  </button>
+                </li>
+              )
+            )}
+          </ul>
+        )}
       </section>
 
       {/* Data */}

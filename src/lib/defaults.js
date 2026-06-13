@@ -50,6 +50,7 @@ export function emptyStore() {
     version: 1,
     goals: { ...DEFAULT_GOALS },
     library: [...COMMON_EXERCISES],
+    foods: [], // user's custom per-100g foods (built-ins live in lib/foods.js)
     days: {},
   }
 }

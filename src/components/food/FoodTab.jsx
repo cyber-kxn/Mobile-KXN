@@ -16,7 +16,7 @@ function overallStatus(totals, goals) {
   return { text: `${round(goal - cal)} kcal to go`, cls: 'text-amber-500' }
 }
 
-export default function FoodTab({ day, goals, actions, dateKey }) {
+export default function FoodTab({ day, goals, actions, dateKey, foods }) {
   const totals = sumFood(day.food)
   const status = overallStatus(totals, goals)
 
@@ -67,7 +67,7 @@ export default function FoodTab({ day, goals, actions, dateKey }) {
         ))}
       </section>
 
-      <FoodForm onAdd={(entry) => actions.addFood(dateKey, entry)} />
+      <FoodForm foods={foods} onAdd={(entry) => actions.addFood(dateKey, entry)} />
 
       <FoodList
         food={day.food}

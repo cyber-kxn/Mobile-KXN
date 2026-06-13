@@ -67,7 +67,14 @@ function FoodRow({ entry, onUpdate, onDelete, onDuplicate }) {
   return (
     <li className="group flex items-center gap-3 p-3">
       <div className="min-w-0 flex-1">
-        <div className="truncate font-medium">{entry.name}</div>
+        <div className="truncate font-medium">
+          {entry.name}
+          {entry.grams ? (
+            <span className="ml-1.5 text-xs font-normal text-slate-400">
+              {round(entry.grams)} g
+            </span>
+          ) : null}
+        </div>
         <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500 dark:text-slate-400">
           <span className="font-semibold text-slate-700 dark:text-slate-200">
             {round(entry.calories)} kcal

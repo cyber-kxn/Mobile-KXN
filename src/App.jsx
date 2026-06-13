@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useStore } from './hooks/useStore.js'
 import { useTheme } from './hooks/useTheme.js'
 import { todayKey } from './lib/date.js'
+import { mergeFoods } from './lib/foods.js'
 
 import DateNav from './components/DateNav.jsx'
 import FoodTab from './components/food/FoodTab.jsx'
@@ -25,6 +26,9 @@ export default function App() {
 
   const day = store.getDay(dateKey)
   const showDateNav = tab === 'food' || tab === 'training'
+
+  // Built-in food index merged with the user's custom foods.
+  const foods = useMemo(() => mergeFoods(store.store.foods), [store.store.foods])
 
   function selectDayFromHistory(key) {
     setDateKey(key)
@@ -66,6 +70,7 @@ export default function App() {
             goals={store.store.goals}
             actions={store}
             dateKey={dateKey}
+            foods={foods}
           />
         )}
         {tab === 'training' && (
@@ -84,7 +89,7 @@ export default function App() {
           />
         )}
         {tab === 'settings' && (
-          <SettingsTab store={store.store} actions={store} theme={theme} />
+          <SettingsTab store={store.store} actions={store} theme={theme} foods={foods} />
         )}
       </main>
 

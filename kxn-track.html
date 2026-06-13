@@ -207,19 +207,68 @@
 
   /* ============================ Defaults ============================ */
   const DEFAULT_GOALS = { calories: 2500, protein: 150, carbs: 250, fat: 80 };
-  const COMMON_FOODS = [
-    { name: "Chicken Breast (150g)", calories: 248, protein: 47, carbs: 0, fat: 5 },
-    { name: "White Rice (1 cup)", calories: 205, protein: 4, carbs: 45, fat: 0 },
-    { name: "Whole Egg", calories: 78, protein: 6, carbs: 1, fat: 5 },
-    { name: "Banana", calories: 105, protein: 1, carbs: 27, fat: 0 },
-    { name: "Greek Yogurt (170g)", calories: 100, protein: 17, carbs: 6, fat: 0 },
-    { name: "Oats (1/2 cup dry)", calories: 150, protein: 5, carbs: 27, fat: 3 },
-    { name: "Whey Protein Scoop", calories: 120, protein: 24, carbs: 3, fat: 2 },
-    { name: "Almonds (28g)", calories: 164, protein: 6, carbs: 6, fat: 14 },
-    { name: "Peanut Butter (1 tbsp)", calories: 94, protein: 4, carbs: 3, fat: 8 },
-    { name: "Salmon (150g)", calories: 280, protein: 39, carbs: 0, fat: 13 },
-    { name: "Sweet Potato (medium)", calories: 112, protein: 2, carbs: 26, fat: 0 },
-    { name: "Broccoli (1 cup)", calories: 55, protein: 4, carbs: 11, fat: 1 },
+  // Built-in food index — all values are PER 100 g. n=name, kcal, p, c, f.
+  const FOOD_DB = [
+    { n: "Chicken Breast (cooked)", kcal: 165, p: 31, c: 0, f: 3.6 },
+    { n: "Chicken Thigh (cooked)", kcal: 209, p: 26, c: 0, f: 11 },
+    { n: "Turkey Mince (cooked)", kcal: 203, p: 27, c: 0, f: 10 },
+    { n: "Beef Mince 5% (cooked)", kcal: 170, p: 26, c: 0, f: 7 },
+    { n: "Beef Steak (cooked)", kcal: 271, p: 25, c: 0, f: 19 },
+    { n: "Pork Chop (cooked)", kcal: 231, p: 27, c: 0, f: 14 },
+    { n: "Bacon (cooked)", kcal: 541, p: 37, c: 1.4, f: 42 },
+    { n: "Salmon (cooked)", kcal: 208, p: 20, c: 0, f: 13 },
+    { n: "Tuna (canned in water)", kcal: 116, p: 26, c: 0, f: 1 },
+    { n: "Cod (cooked)", kcal: 105, p: 23, c: 0, f: 0.9 },
+    { n: "Prawns (cooked)", kcal: 99, p: 24, c: 0.2, f: 0.3 },
+    { n: "Egg (whole)", kcal: 143, p: 13, c: 1.1, f: 9.5 },
+    { n: "Egg White", kcal: 52, p: 11, c: 0.7, f: 0.2 },
+    { n: "Whole Milk", kcal: 61, p: 3.2, c: 4.8, f: 3.3 },
+    { n: "Skimmed Milk", kcal: 34, p: 3.4, c: 5, f: 0.1 },
+    { n: "Greek Yogurt (0% fat)", kcal: 59, p: 10, c: 3.6, f: 0.4 },
+    { n: "Greek Yogurt (full fat)", kcal: 97, p: 9, c: 4, f: 5 },
+    { n: "Cottage Cheese", kcal: 98, p: 11, c: 3.4, f: 4.3 },
+    { n: "Cheddar Cheese", kcal: 402, p: 25, c: 1.3, f: 33 },
+    { n: "Mozzarella", kcal: 280, p: 28, c: 3.1, f: 17 },
+    { n: "Butter", kcal: 717, p: 0.9, c: 0.1, f: 81 },
+    { n: "White Rice (cooked)", kcal: 130, p: 2.7, c: 28, f: 0.3 },
+    { n: "Brown Rice (cooked)", kcal: 123, p: 2.7, c: 26, f: 1 },
+    { n: "Pasta (cooked)", kcal: 158, p: 6, c: 31, f: 0.9 },
+    { n: "White Bread", kcal: 265, p: 9, c: 49, f: 3.2 },
+    { n: "Wholemeal Bread", kcal: 247, p: 13, c: 41, f: 4.2 },
+    { n: "Oats (raw)", kcal: 379, p: 13, c: 67, f: 7 },
+    { n: "Quinoa (cooked)", kcal: 120, p: 4.4, c: 21, f: 1.9 },
+    { n: "Potato (boiled)", kcal: 87, p: 1.9, c: 20, f: 0.1 },
+    { n: "Sweet Potato (cooked)", kcal: 90, p: 2, c: 21, f: 0.1 },
+    { n: "Banana", kcal: 89, p: 1.1, c: 23, f: 0.3 },
+    { n: "Apple", kcal: 52, p: 0.3, c: 14, f: 0.2 },
+    { n: "Orange", kcal: 47, p: 0.9, c: 12, f: 0.1 },
+    { n: "Strawberries", kcal: 32, p: 0.7, c: 7.7, f: 0.3 },
+    { n: "Blueberries", kcal: 57, p: 0.7, c: 14, f: 0.3 },
+    { n: "Avocado", kcal: 160, p: 2, c: 9, f: 15 },
+    { n: "Broccoli", kcal: 34, p: 2.8, c: 7, f: 0.4 },
+    { n: "Spinach", kcal: 23, p: 2.9, c: 3.6, f: 0.4 },
+    { n: "Carrot", kcal: 41, p: 0.9, c: 10, f: 0.2 },
+    { n: "Tomato", kcal: 18, p: 0.9, c: 3.9, f: 0.2 },
+    { n: "Cucumber", kcal: 15, p: 0.7, c: 3.6, f: 0.1 },
+    { n: "Bell Pepper", kcal: 31, p: 1, c: 6, f: 0.3 },
+    { n: "Onion", kcal: 40, p: 1.1, c: 9, f: 0.1 },
+    { n: "Mushrooms", kcal: 22, p: 3.1, c: 3.3, f: 0.3 },
+    { n: "Lentils (cooked)", kcal: 116, p: 9, c: 20, f: 0.4 },
+    { n: "Chickpeas (cooked)", kcal: 164, p: 9, c: 27, f: 2.6 },
+    { n: "Black Beans (cooked)", kcal: 132, p: 9, c: 24, f: 0.5 },
+    { n: "Kidney Beans (cooked)", kcal: 127, p: 9, c: 23, f: 0.5 },
+    { n: "Tofu", kcal: 76, p: 8, c: 1.9, f: 4.8 },
+    { n: "Hummus", kcal: 166, p: 8, c: 14, f: 10 },
+    { n: "Almonds", kcal: 579, p: 21, c: 22, f: 50 },
+    { n: "Peanuts", kcal: 567, p: 26, c: 16, f: 49 },
+    { n: "Peanut Butter", kcal: 588, p: 25, c: 20, f: 50 },
+    { n: "Walnuts", kcal: 654, p: 15, c: 14, f: 65 },
+    { n: "Cashews", kcal: 553, p: 18, c: 30, f: 44 },
+    { n: "Olive Oil", kcal: 884, p: 0, c: 0, f: 100 },
+    { n: "Whey Protein Powder", kcal: 360, p: 80, c: 8, f: 6 },
+    { n: "Honey", kcal: 304, p: 0.3, c: 82, f: 0 },
+    { n: "Sugar", kcal: 387, p: 0, c: 100, f: 0 },
+    { n: "Dark Chocolate (70%)", kcal: 598, p: 8, c: 46, f: 43 },
   ];
   const COMMON_EXERCISES = ["Bench Press","Squat","Deadlift","Overhead Press","Barbell Row",
     "Pull-up","Lat Pulldown","Bicep Curl","Tricep Pushdown","Leg Press","Romanian Deadlift",
@@ -236,6 +285,22 @@
     a.carbs += +f.carbs || 0; a.fat += +f.fat || 0; return a;
   }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
 
+  // Scale a per-100g food to a gram amount → diary-entry macros.
+  function scaleFood(per100, grams) {
+    const g = parseFloat(grams); const factor = (isFinite(g) && g > 0) ? g / 100 : 0;
+    return {
+      calories: Math.round(per100.kcal * factor),
+      protein: round(per100.p * factor), carbs: round(per100.c * factor), fat: round(per100.f * factor),
+    };
+  }
+  // Merge custom foods over built-ins (case-insensitive name), sorted A→Z.
+  function allFoods() {
+    const map = new Map();
+    FOOD_DB.forEach((f) => map.set(f.n.toLowerCase(), f));
+    (store.foods || []).forEach((f) => map.set(f.n.toLowerCase(), f));
+    return [...map.values()].sort((a, b) => a.n.localeCompare(b.n));
+  }
+
   /* date keys (local YYYY-MM-DD) */
   const toKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
   const fromKey = (k) => { const [y,m,d] = k.split("-").map(Number); return new Date(y, m-1, d); };
@@ -248,7 +313,7 @@
 
   /* ============================ Storage ============================ */
   const KEY = "kxn-data", TKEY = "kxn-theme";
-  const emptyStore = () => ({ version: 1, goals: { ...DEFAULT_GOALS }, library: [...COMMON_EXERCISES], days: {} });
+  const emptyStore = () => ({ version: 1, goals: { ...DEFAULT_GOALS }, library: [...COMMON_EXERCISES], foods: [], days: {} });
   const emptyDay = () => ({ food: [], training: [], notes: "" });
 
   function normalize(data) {
@@ -262,6 +327,7 @@
       version: data.version || 1,
       goals: { ...base.goals, ...(data.goals || {}) },
       library: lib,
+      foods: Array.isArray(data.foods) ? data.foods : [],
       days: (data.days && typeof data.days === "object") ? data.days : {},
     };
   }
@@ -282,6 +348,21 @@
   let theme = localStorage.getItem(TKEY) || (prefersDark ? "dark" : "light");
   let editingId = null;          // id of food/exercise currently inline-editing
   let exMode = "detailed";       // exercise form mode
+  let foodPer100 = null;         // per-100g profile of the food picked in the add form
+
+  // Compute macros from the picked food profile × grams, and show the hint.
+  function applyFoodScale(form) {
+    if (!foodPer100) return;
+    const el = form.elements, s = scaleFood(foodPer100, el.grams.value);
+    el.calories.value = s.calories; el.protein.value = s.protein; el.carbs.value = s.carbs; el.fat.value = s.fat;
+    updateFoodHint(form);
+  }
+  function updateFoodHint(form) {
+    const hint = form.querySelector("[data-foodhint]"); if (!hint) return;
+    if (foodPer100) { hint.style.display = "block";
+      hint.innerHTML = `Using <b>${esc(foodPer100.n)}</b> (${foodPer100.kcal} kcal / 100 g) — edit grams or values freely.`; }
+    else { hint.style.display = "none"; hint.innerHTML = ""; }
+  }
 
   const getDay = (k) => store.days[k] || emptyDay();
   function mutateDay(k, fn) {
@@ -297,6 +378,7 @@
   const app = document.getElementById("app");
   function render() {
     document.documentElement.setAttribute("data-theme", theme);
+    foodPer100 = null; // the add-form is rebuilt on every render
     const showNav = tab === "food" || tab === "training";
     app.innerHTML = `
       <header>
@@ -405,12 +487,21 @@
 
   function foodForm() {
     return `<form class="card p12 suggbox" data-form="food">
-      <label class="label">Add food</label>
-      <input class="field" name="name" placeholder="e.g. Chicken & rice" autocomplete="off" data-sugg="food" />
-      <div class="sugg hidden" data-suggbox></div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1;position:relative">
+          <label class="label">Add food</label>
+          <input class="field" name="name" placeholder="Search foods or type your own…" autocomplete="off" data-sugg="food" />
+          <div class="sugg hidden" data-suggbox></div>
+        </div>
+        <div style="width:78px;flex:none">
+          <label class="label">Grams</label>
+          <input class="field center" name="grams" type="number" min="0" step="any" inputmode="decimal" placeholder="g" data-act="grams" />
+        </div>
+      </div>
+      <p class="faint" data-foodhint style="font-size:12px;margin:8px 0 0;display:none"></p>
       <div class="grid4" style="margin-top:12px">
         ${[["calories","Calories"],["protein","Protein"],["carbs","Carbs"],["fat","Fat"]].map(([n,l]) =>
-          `<div><label class="label">${l}</label><input class="field center" name="${n}" type="number" min="0" step="any" inputmode="decimal" placeholder="0"/></div>`).join("")}
+          `<div><label class="label">${l}</label><input class="field center" name="${n}" type="number" min="0" step="any" inputmode="decimal" placeholder="0" data-macro/></div>`).join("")}
       </div>
       <button class="btn primary full" style="margin-top:12px" type="submit">${svg("plus")} Add entry</button>
     </form>`;
@@ -422,7 +513,7 @@
   function foodRow(f) {
     return `<li><div class="entry">
       <div style="min-width:0;flex:1">
-        <div class="name">${esc(f.name)}</div>
+        <div class="name">${esc(f.name)}${f.grams ? `<span class="faint" style="font-weight:400;font-size:12px;margin-left:6px">${round(f.grams)} g</span>` : ""}</div>
         <div class="meta"><b>${round(f.calories)} kcal</b><span>P ${round(f.protein)}g</span><span>C ${round(f.carbs)}g</span><span>F ${round(f.fat)}g</span></div>
       </div>
       <div class="actions">
@@ -607,6 +698,36 @@
       </section>
 
       <section class="card p16">
+        <div class="sectionTitle" style="margin-bottom:6px">Food Database</div>
+        <p class="faint" style="font-size:12px;margin:0 0 12px">${allFoods().length} foods available when adding entries (built-ins + your own). Add custom foods below — values are <b>per 100 g</b>.</p>
+        <form data-form="customfood" style="border:1px solid var(--border);border-radius:12px;padding:10px">
+          <input class="field" name="n" placeholder="Food name (per 100 g)" autocomplete="off" style="margin-bottom:8px"/>
+          <div class="grid4">
+            ${[["kcal","Cal"],["p","Protein"],["c","Carbs"],["f","Fat"]].map(([k,l]) =>
+              `<div><label class="label">${l}</label><input class="field center" name="${k}" type="number" min="0" step="any" inputmode="decimal" placeholder="0"/></div>`).join("")}
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn primary" type="submit">${svg("plus")} Add food</button></div>
+        </form>
+        ${(store.foods && store.foods.length) ? `<div class="libbox" style="margin-top:12px">${
+          store.foods.map((fd) => fd.n === editingFood
+            ? `<form data-form="foodedit" data-name="${esc(fd.n)}" class="libitem" style="flex-wrap:wrap;gap:6px">
+                <input class="field" name="n" value="${esc(fd.n)}" style="flex:1 1 100%;padding:6px 10px"/>
+                <input class="field center" name="kcal" type="number" min="0" step="any" value="${fd.kcal}" style="flex:1;padding:6px 4px" placeholder="Cal"/>
+                <input class="field center" name="p" type="number" min="0" step="any" value="${fd.p}" style="flex:1;padding:6px 4px" placeholder="P"/>
+                <input class="field center" name="c" type="number" min="0" step="any" value="${fd.c}" style="flex:1;padding:6px 4px" placeholder="C"/>
+                <input class="field center" name="f" type="number" min="0" step="any" value="${fd.f}" style="flex:1;padding:6px 4px" placeholder="F"/>
+                <button class="iconbtn" type="submit">${svg("check")}</button>
+                <button class="iconbtn" type="button" data-act="foodcancel">${svg("x")}</button></form>`
+            : `<div class="libitem"><div style="flex:1;min-width:0">
+                <div style="font-size:14px;font-weight:500">${esc(fd.n)}</div>
+                <div class="faint" style="font-size:12px">per 100 g · ${fd.kcal} kcal · P ${fd.p} · C ${fd.c} · F ${fd.f}</div></div>
+                <button class="iconbtn" data-act="foodrename" data-name="${esc(fd.n)}" aria-label="Edit">${svg("edit")}</button>
+                <button class="iconbtn del" data-act="fooddel" data-name="${esc(fd.n)}" aria-label="Delete">${svg("trash")}</button></div>`
+          ).join("")
+        }</div>` : ""}
+      </section>
+
+      <section class="card p16">
         <div class="sectionTitle" style="margin-bottom:12px">Backup & Data</div>
         <div class="row" style="flex-wrap:wrap;gap:8px">
           <button class="btn ghost" data-act="export">${svg("down")} Export JSON</button>
@@ -618,7 +739,7 @@
       </section>
     </div>`;
   }
-  let libFilter = "", editingLib = null;
+  let libFilter = "", editingLib = null, editingFood = null;
 
   /* ============================ Toast ============================ */
   let toastT;
@@ -635,10 +756,10 @@
     if (!q) { box.classList.add("hidden"); return; }
     let items = "";
     if (kind === "food") {
-      const matches = COMMON_FOODS.filter((f) => f.name.toLowerCase().includes(q)).slice(0,6);
+      const matches = allFoods().filter((f) => f.n.toLowerCase().includes(q)).slice(0,6);
       if (!matches.length) { box.classList.add("hidden"); return; }
       items = matches.map((m) => `<button type="button" data-pick='${esc(JSON.stringify(m))}'>
-        <span>${esc(m.name)}</span><span class="s2">${m.calories} kcal · ${m.protein}p</span></button>`).join("");
+        <span>${esc(m.n)}</span><span class="s2">${m.kcal} kcal · ${m.p}p /100g</span></button>`).join("");
     } else {
       const matches = store.library.filter((e) => e.toLowerCase().includes(q) && e.toLowerCase() !== q).slice(0,6);
       if (!matches.length) { box.classList.add("hidden"); return; }
@@ -698,6 +819,10 @@
           editingLib = null; save(); render(); break;
         }
         case "libdel": store.library = store.library.filter((x) => x !== t.dataset.name); save(); render(); break;
+        // settings: custom foods
+        case "foodrename": editingFood = t.dataset.name; render(); break;
+        case "foodcancel": editingFood = null; render(); break;
+        case "fooddel": store.foods = (store.foods||[]).filter((x) => x.n !== t.dataset.name); save(); render(); break;
         // settings: data
         case "export": doExport(); break;
         case "import": app.querySelector("[data-act=importfile]").click(); break;
@@ -712,13 +837,25 @@
     app.querySelectorAll("[data-suggbox]").forEach((box) => {
       box.addEventListener("mousedown", (e) => {
         const pick = e.target.closest("[data-pick]"), pickName = e.target.closest("[data-pickname]");
-        const el = box.closest("form").elements;
+        const form = box.closest("form"), el = form.elements;
         if (pick) { e.preventDefault(); const m = JSON.parse(pick.dataset.pick);
-          el.name.value = m.name; el.calories.value = m.calories; el.protein.value = m.protein;
-          el.carbs.value = m.carbs; el.fat.value = m.fat; box.classList.add("hidden"); el.name.focus(); }
+          // Food picked from the per-100g index: remember profile, default to 100 g, compute.
+          foodPer100 = m;
+          el.name.value = m.n;
+          if (!(num(el.grams.value) > 0)) el.grams.value = "100";
+          applyFoodScale(form);
+          box.classList.add("hidden");
+          setTimeout(() => { el.grams.focus(); el.grams.select(); }, 0); }
         else if (pickName) { e.preventDefault(); el.name.value = pickName.dataset.pickname; box.classList.add("hidden"); el.name.focus(); }
       });
     });
+
+    // Grams field → re-scale macros from the picked food profile.
+    const gr = app.querySelector("[data-act=grams]");
+    if (gr) gr.addEventListener("input", () => { if (foodPer100) applyFoodScale(gr.closest("form")); });
+    // Manually editing any macro detaches the food link and hides the hint.
+    app.querySelectorAll("[data-form=food] [data-macro]").forEach((inp) =>
+      inp.addEventListener("input", () => { foodPer100 = null; updateFoodHint(inp.closest("form")); }));
 
     // Suggestion input typing
     app.querySelectorAll("[data-sugg]").forEach((inp) => {
@@ -767,6 +904,7 @@
       const name = el.name.value.trim(); if (!name) { el.name.focus(); return; }
       const entry = { name, calories: num(el.calories.value), protein: num(el.protein.value), carbs: num(el.carbs.value), fat: num(el.fat.value) };
       if (kind === "food") {
+        const grams = el.grams ? num(el.grams.value) : 0; if (grams > 0) entry.grams = grams;
         mutateDay(dateKey, (d) => { d.food = [...d.food, { id: uid(), ...entry }]; });
         f.reset(); render(); app.querySelector('[data-form="food"] [name=name]').focus();
       } else {
@@ -787,6 +925,14 @@
     } else if (kind === "goals") {
       store.goals = { calories: num(el.calories.value), protein: num(el.protein.value), carbs: num(el.carbs.value), fat: num(el.fat.value) };
       save(); render(); toast("Goals saved ✓");
+    } else if (kind === "customfood" || kind === "foodedit") {
+      const n = el.n.value.trim(); if (!n) { el.n.focus(); return; }
+      const food = { n, kcal: num(el.kcal.value), p: num(el.p.value), c: num(el.c.value), f: num(el.f.value) };
+      const matchKey = (kind === "foodedit" ? f.dataset.name : n).toLowerCase();
+      store.foods = store.foods || [];
+      const idx = store.foods.findIndex((x) => x.n.toLowerCase() === matchKey);
+      if (idx >= 0) store.foods[idx] = food; else store.foods.push(food);
+      editingFood = null; save(); render(); toast(kind === "foodedit" ? "Food updated ✓" : "Food added ✓");
     }
   }
 
