@@ -69,9 +69,9 @@ export function RoomView() {
   }[conn];
 
   return (
-    <div className="flex h-[calc(100dvh-3.5rem)] flex-col lg:h-screen">
+    <div className="flex h-[100dvh] flex-col">
       {/* Header */}
-      <header className="flex flex-wrap items-center gap-3 border-b border-white/[0.06] bg-obsidian-800/70 px-4 py-3 backdrop-blur-xl">
+      <header className="flex flex-wrap items-center gap-3 border-b border-white/[0.06] bg-obsidian-800/70 px-4 py-3 pt-safe backdrop-blur-xl">
         <Link to="/paths" className="text-slate-400 hover:text-slate-200">
           <Icon name="chevron" size={18} className="rotate-180" />
         </Link>

@@ -105,8 +105,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Main */}
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Mobile top bar */}
-        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/[0.06] bg-obsidian-800/80 px-4 py-3 pt-safe backdrop-blur-xl lg:hidden">
+        {/* Mobile top bar — hidden on room pages (room has its own header) */}
+        <header className={cn('sticky top-0 z-30 flex items-center justify-between border-b border-white/[0.06] bg-obsidian-800/80 px-4 py-3 pt-safe backdrop-blur-xl lg:hidden', isRoom && 'hidden')}>
           <Brand />
           <div className="flex items-center gap-2">
             <span className="chip border border-amber-500/20 bg-amber-500/10 text-amber-300">
