@@ -117,6 +117,14 @@ export const Upload = (p) => (
   </svg>
 )
 
+export const Book = (p) => (
+  <svg {...base} {...p}>
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z" />
+    <path d="M9 7h7M9 11h5" />
+  </svg>
+)
+
 export const Plan = (p) => (
   <svg {...base} {...p}>
     <path d="M9 2h6a1 1 0 0 1 1 1v1h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2V3a1 1 0 0 1 1-1Z" />

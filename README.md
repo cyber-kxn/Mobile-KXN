@@ -69,12 +69,30 @@ Because it's still just a web app, your data stays **local to each device**. Use
   remaining amounts, and an "under / on track / over" color-coded verdict.
 - A separate **Overall Daily Total** strip, kept distinct from the goal view.
 
+### Meal Planner (Plan tab)
+- Set **meals/day** + daily calorie/protein/carbs/fat targets (defaults to your
+  Goals); shows the per-meal split.
+- **Build your own:** pick ingredients and it solves the **grams of each to hit
+  your per-meal macro target** (non-negative least-squares solver).
+- **Recommend meals:** auto-suggests meals from the food database that fit the
+  target, with per-food **include/exclude toggles** + a **regenerate** button
+  and a % fit badge.
+- **Log** a planned meal to today's diary in one tap.
+
 ### Training / Gym
 - **Detailed mode**: exercise name + multiple sets (reps × weight).
 - **Quick mode**: title-only logging for cardio, mobility, "I did this".
+- **Exercise info**: type/select an exercise and instantly see **muscles worked,
+  how-to steps and form cues** (built-in info for ~36 common lifts, with fuzzy
+  matching). Also available via the **info** button on each logged exercise.
 - **Exercise Library**: every exercise you name is saved and offered as
   **autocomplete** next time. Rename or delete library items in Settings.
 - Editable/deletable daily exercise list + an optional **per-day notes** field.
+
+### Learn
+- A reference section with **practical nutrition & training fundamentals**
+  (energy balance, protein, cutting/bulking, progressive overload, splits,
+  recovery, and more) — searchable and filterable by category.
 
 ### History & Data
 - **Activity heatmap** (last 18 weeks) + a list of logged days with summaries.
