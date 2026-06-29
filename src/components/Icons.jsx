@@ -117,6 +117,13 @@ export const Upload = (p) => (
   </svg>
 )
 
+export const Plan = (p) => (
+  <svg {...base} {...p}>
+    <path d="M9 2h6a1 1 0 0 1 1 1v1h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2V3a1 1 0 0 1 1-1Z" />
+    <path d="M9 4h6M8 11l1.5 1.5L12 10M8 16l1.5 1.5L12 15M15 11h2M15 16h2" />
+  </svg>
+)
+
 export const Note = (p) => (
   <svg {...base} {...p}>
     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />

@@ -198,6 +198,33 @@ export function useStore() {
     }))
   }, [])
 
+  // --- Meal planner --------------------------------------------------------
+
+  const setMealPlan = useCallback((patch) => {
+    setStore((prev) => ({ ...prev, mealPlan: { ...prev.mealPlan, ...patch } }))
+  }, [])
+
+  /** Toggle whether a food is allowed in meal recommendations. */
+  const toggleFoodEnabled = useCallback((name, enabled) => {
+    setStore((prev) => {
+      const set = new Set(prev.mealPlan.disabled)
+      if (enabled) set.delete(name)
+      else set.add(name)
+      return { ...prev, mealPlan: { ...prev.mealPlan, disabled: [...set] } }
+    })
+  }, [])
+
+  /** Add several food entries to a day at once (logging a planned meal). */
+  const addFoods = useCallback(
+    (key, entries) => {
+      updateDay(key, (day) => ({
+        ...day,
+        food: [...day.food, ...entries.map((e) => ({ id: uid(), ...e }))],
+      }))
+    },
+    [updateDay]
+  )
+
   // --- Bulk (import / reset) ----------------------------------------------
 
   const replaceStore = useCallback((next) => setStore(next), [])
@@ -222,6 +249,10 @@ export function useStore() {
     // custom foods
     saveCustomFood,
     deleteCustomFood,
+    // meal planner
+    setMealPlan,
+    toggleFoodEnabled,
+    addFoods,
     // bulk
     replaceStore,
   }
