@@ -38,6 +38,7 @@ export function normalize(data) {
     // De-duplicate the library while preserving order.
     library: dedupe([...(data.library || []), ...base.library]),
     foods: Array.isArray(data.foods) ? data.foods : [],
+    mealPlan: { ...base.mealPlan, ...(data.mealPlan || {}) },
     days: data.days && typeof data.days === 'object' ? data.days : {},
   }
 }

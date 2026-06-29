@@ -6,14 +6,16 @@ import { mergeFoods } from './lib/foods.js'
 
 import DateNav from './components/DateNav.jsx'
 import FoodTab from './components/food/FoodTab.jsx'
+import PlanTab from './components/plan/PlanTab.jsx'
 import TrainingTab from './components/training/TrainingTab.jsx'
 import HistoryTab from './components/history/HistoryTab.jsx'
 import SettingsTab from './components/settings/SettingsTab.jsx'
-import { Apple, Dumbbell, Calendar, Settings, Sun, Moon } from './components/Icons.jsx'
+import { Apple, Plan, Dumbbell, Calendar, Settings, Sun, Moon } from './components/Icons.jsx'
 
 const TABS = [
   { id: 'food', label: 'Food', Icon: Apple },
-  { id: 'training', label: 'Training', Icon: Dumbbell },
+  { id: 'plan', label: 'Plan', Icon: Plan },
+  { id: 'training', label: 'Train', Icon: Dumbbell },
   { id: 'history', label: 'History', Icon: Calendar },
   { id: 'settings', label: 'Settings', Icon: Settings },
 ]
@@ -23,9 +25,15 @@ export default function App() {
   const theme = useTheme()
   const [tab, setTab] = useState('food')
   const [dateKey, setDateKey] = useState(todayKey())
+  const [toast, setToast] = useState('')
 
   const day = store.getDay(dateKey)
   const showDateNav = tab === 'food' || tab === 'training'
+
+  function flash(msg) {
+    setToast(msg)
+    setTimeout(() => setToast(''), 1800)
+  }
 
   // Built-in food index merged with the user's custom foods.
   const foods = useMemo(() => mergeFoods(store.store.foods), [store.store.foods])
@@ -81,6 +89,16 @@ export default function App() {
             dateKey={dateKey}
           />
         )}
+        {tab === 'plan' && (
+          <PlanTab
+            store={store.store}
+            foods={foods}
+            goals={store.store.goals}
+            actions={store}
+            dateKey={todayKey()}
+            onLogged={() => flash('Meal logged to today ✓')}
+          />
+        )}
         {tab === 'history' && (
           <HistoryTab
             store={store.store}
@@ -122,6 +140,12 @@ export default function App() {
           })}
         </div>
       </nav>
+
+      {toast && (
+        <div className="fixed inset-x-0 bottom-24 z-50 mx-auto w-fit rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-lg animate-pop-in dark:bg-white dark:text-slate-900">
+          {toast}
+        </div>
+      )}
     </div>
   )
 }

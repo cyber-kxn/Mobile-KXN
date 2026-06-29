@@ -51,6 +51,8 @@ export function emptyStore() {
     goals: { ...DEFAULT_GOALS },
     library: [...COMMON_EXERCISES],
     foods: [], // user's custom per-100g foods (built-ins live in lib/foods.js)
+    // Meal planner config. target=null means "use my daily Goals".
+    mealPlan: { meals: 3, target: null, disabled: [] },
     days: {},
   }
 }
