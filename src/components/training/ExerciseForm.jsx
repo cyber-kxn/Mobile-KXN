@@ -1,6 +1,8 @@
 import { useMemo, useRef, useState } from 'react'
 import { Plus, X } from '../Icons.jsx'
 import { toNonNegNumber } from '../../lib/utils.js'
+import { getExerciseInfo } from '../../lib/exercises.js'
+import ExerciseInfo from './ExerciseInfo.jsx'
 
 const emptySet = () => ({ reps: '', weight: '' })
 
@@ -18,6 +20,8 @@ export default function ExerciseForm({ library, onAdd }) {
   const [showSuggest, setShowSuggest] = useState(false)
   const nameRef = useRef(null)
 
+  const [showInfo, setShowInfo] = useState(false)
+
   const suggestions = useMemo(() => {
     const q = name.trim().toLowerCase()
     if (!q) return []
@@ -25,6 +29,9 @@ export default function ExerciseForm({ library, onAdd }) {
       .filter((e) => e.toLowerCase().includes(q) && e.toLowerCase() !== q)
       .slice(0, 6)
   }, [name, library])
+
+  // Live exercise info for whatever is currently typed.
+  const info = useMemo(() => getExerciseInfo(name), [name])
 
   function updateSet(i, field, value) {
     setSets((prev) => prev.map((s, idx) => (idx === i ? { ...s, [field]: value } : s)))
@@ -127,6 +134,27 @@ export default function ExerciseForm({ library, onAdd }) {
           </ul>
         )}
       </div>
+
+      {/* Live exercise info */}
+      {info && (
+        <div className="mt-2">
+          <button
+            type="button"
+            onClick={() => setShowInfo((v) => !v)}
+            className="flex items-center gap-1.5 text-xs font-medium text-brand"
+          >
+            <span className="grid h-4 w-4 place-items-center rounded-full border border-brand text-[10px] font-bold">
+              i
+            </span>
+            {showInfo ? 'Hide' : 'Show'} info — {info.name}: {info.primary.join(', ')}
+          </button>
+          {showInfo && (
+            <div className="mt-2">
+              <ExerciseInfo info={info} />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Sets (detailed only) */}
       {mode === 'detailed' && (

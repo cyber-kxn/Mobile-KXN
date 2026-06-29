@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Trash, Edit, Check, X, Plus, Dumbbell } from '../Icons.jsx'
 import { toNonNegNumber, round } from '../../lib/utils.js'
+import { getExerciseInfo } from '../../lib/exercises.js'
+import ExerciseInfo from './ExerciseInfo.jsx'
 
 const emptySet = () => ({ reps: '', weight: '' })
 
@@ -14,6 +16,8 @@ function setSummary(sets = []) {
 function ExerciseRow({ exercise, onUpdate, onDelete }) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(exercise)
+  const [infoOpen, setInfoOpen] = useState(false)
+  const info = getExerciseInfo(exercise.name)
 
   function startEdit() {
     setDraft({ ...exercise, sets: exercise.sets?.length ? exercise.sets : [] })
@@ -120,38 +124,57 @@ function ExerciseRow({ exercise, onUpdate, onDelete }) {
   const summary = setSummary(exercise.sets)
 
   return (
-    <li className="group flex items-start gap-3 p-3">
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="font-medium">{exercise.name}</span>
-          {exercise.mode === 'quick' && (
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-800">
-              logged
-            </span>
+    <li className="group p-3">
+      <div className="flex items-start gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="font-medium">{exercise.name}</span>
+            {exercise.mode === 'quick' && (
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-800">
+                logged
+              </span>
+            )}
+          </div>
+          {summary && (
+            <div className="mt-1 text-sm tabular-nums text-slate-500 dark:text-slate-400">
+              {summary}
+            </div>
+          )}
+          {exercise.note && (
+            <div className="mt-1 text-xs italic text-slate-400">{exercise.note}</div>
+          )}
+          {info && (
+            <button
+              type="button"
+              onClick={() => setInfoOpen((v) => !v)}
+              className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-brand"
+            >
+              <span className="grid h-4 w-4 place-items-center rounded-full border border-brand text-[10px] font-bold">
+                i
+              </span>
+              {infoOpen ? 'Hide info' : 'Info'} · {info.primary.join(', ')}
+            </button>
           )}
         </div>
-        {summary && (
-          <div className="mt-1 text-sm tabular-nums text-slate-500 dark:text-slate-400">
-            {summary}
-          </div>
-        )}
-        {exercise.note && (
-          <div className="mt-1 text-xs italic text-slate-400">{exercise.note}</div>
-        )}
+        <div className="flex shrink-0 items-center opacity-100 sm:opacity-60 sm:transition group-hover:sm:opacity-100">
+          <button className="btn-icon" onClick={startEdit} aria-label="Edit exercise" title="Edit">
+            <Edit width={16} height={16} />
+          </button>
+          <button
+            className="btn-icon hover:!text-red-500"
+            onClick={onDelete}
+            aria-label="Delete exercise"
+            title="Delete"
+          >
+            <Trash width={16} height={16} />
+          </button>
+        </div>
       </div>
-      <div className="flex shrink-0 items-center opacity-100 sm:opacity-60 sm:transition group-hover:sm:opacity-100">
-        <button className="btn-icon" onClick={startEdit} aria-label="Edit exercise" title="Edit">
-          <Edit width={16} height={16} />
-        </button>
-        <button
-          className="btn-icon hover:!text-red-500"
-          onClick={onDelete}
-          aria-label="Delete exercise"
-          title="Delete"
-        >
-          <Trash width={16} height={16} />
-        </button>
-      </div>
+      {info && infoOpen && (
+        <div className="mt-2">
+          <ExerciseInfo info={info} />
+        </div>
+      )}
     </li>
   )
 }

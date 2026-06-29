@@ -9,14 +9,15 @@ import FoodTab from './components/food/FoodTab.jsx'
 import PlanTab from './components/plan/PlanTab.jsx'
 import TrainingTab from './components/training/TrainingTab.jsx'
 import HistoryTab from './components/history/HistoryTab.jsx'
+import LearnTab from './components/learn/LearnTab.jsx'
 import SettingsTab from './components/settings/SettingsTab.jsx'
-import { Apple, Plan, Dumbbell, Calendar, Settings, Sun, Moon } from './components/Icons.jsx'
+import { Apple, Plan, Dumbbell, Book, Calendar, Settings, Sun, Moon } from './components/Icons.jsx'
 
 const TABS = [
   { id: 'food', label: 'Food', Icon: Apple },
   { id: 'plan', label: 'Plan', Icon: Plan },
   { id: 'training', label: 'Train', Icon: Dumbbell },
-  { id: 'history', label: 'History', Icon: Calendar },
+  { id: 'learn', label: 'Learn', Icon: Book },
   { id: 'settings', label: 'Settings', Icon: Settings },
 ]
 
@@ -54,14 +55,24 @@ export default function App() {
             </span>
             KXN <span className="font-medium text-slate-400">Track</span>
           </h1>
-          <button
-            className="btn-icon"
-            onClick={theme.toggle}
-            aria-label="Toggle dark mode"
-            title="Toggle theme"
-          >
-            {theme.dark ? <Sun /> : <Moon />}
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              className={`btn-icon ${tab === 'history' ? 'text-brand' : ''}`}
+              onClick={() => setTab('history')}
+              aria-label="History"
+              title="History"
+            >
+              <Calendar />
+            </button>
+            <button
+              className="btn-icon"
+              onClick={theme.toggle}
+              aria-label="Toggle dark mode"
+              title="Toggle theme"
+            >
+              {theme.dark ? <Sun /> : <Moon />}
+            </button>
+          </div>
         </div>
         {showDateNav && (
           <div className="px-4 pb-3">
@@ -99,6 +110,7 @@ export default function App() {
             onLogged={() => flash('Meal logged to today ✓')}
           />
         )}
+        {tab === 'learn' && <LearnTab />}
         {tab === 'history' && (
           <HistoryTab
             store={store.store}
