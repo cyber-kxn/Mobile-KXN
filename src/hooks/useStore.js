@@ -225,6 +225,21 @@ export function useStore() {
     [updateDay]
   )
 
+  /** Save a meal (name + resolved diary entries) to favourites. */
+  const saveMeal = useCallback((meal) => {
+    setStore((prev) => ({
+      ...prev,
+      savedMeals: [...prev.savedMeals, { id: uid(), ...meal }],
+    }))
+  }, [])
+
+  const deleteMeal = useCallback((id) => {
+    setStore((prev) => ({
+      ...prev,
+      savedMeals: prev.savedMeals.filter((m) => m.id !== id),
+    }))
+  }, [])
+
   // --- Bulk (import / reset) ----------------------------------------------
 
   const replaceStore = useCallback((next) => setStore(next), [])
@@ -253,6 +268,8 @@ export function useStore() {
     setMealPlan,
     toggleFoodEnabled,
     addFoods,
+    saveMeal,
+    deleteMeal,
     // bulk
     replaceStore,
   }

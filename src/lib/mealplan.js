@@ -150,3 +150,33 @@ export function recommendMeals(enabledFoods, target, { count = 4, seed = 0 } = {
   }
   return out
 }
+
+/**
+ * Generate a full day of `meals` distinct meals that together approximate the
+ * daily macro target. Each meal targets daily/meals; we pull a larger candidate
+ * pool and pick the best non-overlapping ones so the day feels varied.
+ */
+export function generateDay(enabledFoods, daily, meals, { seed = 0 } = {}) {
+  const perMeal = {
+    calories: (daily.calories || 0) / meals,
+    protein: (daily.protein || 0) / meals,
+    carbs: (daily.carbs || 0) / meals,
+    fat: (daily.fat || 0) / meals,
+  }
+  const pool = recommendMeals(enabledFoods, perMeal, { count: meals * 3, seed })
+  const chosen = []
+  const usedPrimary = new Set() // avoid repeating the same primary food each meal
+  for (const m of pool) {
+    const primary = m.items[0]?.food.n
+    if (primary && usedPrimary.has(primary)) continue
+    usedPrimary.add(primary)
+    chosen.push(m)
+    if (chosen.length >= meals) break
+  }
+  // If we couldn't fill all slots with distinct primaries, top up from the pool.
+  for (const m of pool) {
+    if (chosen.length >= meals) break
+    if (!chosen.includes(m)) chosen.push(m)
+  }
+  return chosen
+}

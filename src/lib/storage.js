@@ -39,6 +39,7 @@ export function normalize(data) {
     library: dedupe([...(data.library || []), ...base.library]),
     foods: Array.isArray(data.foods) ? data.foods : [],
     mealPlan: { ...base.mealPlan, ...(data.mealPlan || {}) },
+    savedMeals: Array.isArray(data.savedMeals) ? data.savedMeals : [],
     days: data.days && typeof data.days === 'object' ? data.days : {},
   }
 }
