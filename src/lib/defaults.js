@@ -53,6 +53,7 @@ export function emptyStore() {
     foods: [], // user's custom per-100g foods (built-ins live in lib/foods.js)
     // Meal planner config. target=null means "use my daily Goals".
     mealPlan: { meals: 3, target: null, disabled: [] },
+    savedMeals: [], // user's saved/favourite meals (resolved diary entries)
     days: {},
   }
 }

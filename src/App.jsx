@@ -3,6 +3,7 @@ import { useStore } from './hooks/useStore.js'
 import { useTheme } from './hooks/useTheme.js'
 import { todayKey } from './lib/date.js'
 import { mergeFoods } from './lib/foods.js'
+import { sumFood } from './lib/utils.js'
 
 import DateNav from './components/DateNav.jsx'
 import FoodTab from './components/food/FoodTab.jsx'
@@ -107,7 +108,8 @@ export default function App() {
             goals={store.store.goals}
             actions={store}
             dateKey={todayKey()}
-            onLogged={() => flash('Meal logged to today ✓')}
+            eaten={sumFood(store.getDay(todayKey()).food)}
+            onLogged={(msg) => flash(msg || 'Logged ✓')}
           />
         )}
         {tab === 'learn' && <LearnTab />}
